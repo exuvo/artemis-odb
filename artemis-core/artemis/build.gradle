@@ -1,0 +1,16 @@
+plugins {
+	id "java"
+}
+
+archivesBaseName = "artemis-odb"
+version = '2.4.0-SNAPSHOT'
+
+dependencies {
+	testImplementation "org.mockito:mockito-all:1.9.5"
+	testImplementation "org.openjdk.jol:jol-core:0.5"
+	testImplementation 'junit:junit:4.11'
+}
+
+test {
+	exclude '**/*'
+}

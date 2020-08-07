@@ -1,0 +1,21 @@
+plugins {
+	id "java"
+	id "idea"
+}
+
+subprojects {
+	group = "net.onedaybeard.artemis"
+
+	tasks.withType(JavaCompile).all {
+		sourceCompatibility = "11"
+		targetCompatibility = "11"
+	}
+
+	[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+
+}
