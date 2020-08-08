@@ -34,6 +34,7 @@ import com.artemis.utils.Bag;
  */
 public class Aspect {
 
+	World world;
 	/** Component bits the entity must all possess. */
 	BitVector allSet;
 	/** Component bits the entity must not possess. */
@@ -41,7 +42,8 @@ public class Aspect {
 	/** Component bits of which the entity must possess at least one. */
 	BitVector oneSet;
 
-	private Aspect() {
+	private Aspect(World world) {
+		this.world = world;
 		this.allSet = new BitVector();
 		this.exclusionSet = new BitVector();
 		this.oneSet = new BitVector();
@@ -77,10 +79,16 @@ public class Aspect {
 	public BitVector getOneSet() {
 		return oneSet;
 	}
-
+	
 	/**
 	 * Returns whether this Aspect would accept the given set.
-	 * Get componentBits from world.getComponentManager().componentBits(entityID)
+	 */
+	public boolean isInterested(int entityID){
+		return isInterested(world.getComponentManager().componentBits(entityID));
+	}
+	
+	/**
+	 * Returns whether this Aspect would accept the given set.
 	 */
 	public boolean isInterested(BitVector componentBits){
 		// Check if the entity possesses ALL of the components defined in the aspect.
@@ -340,7 +348,7 @@ public class Aspect {
 		 */
 		public Aspect build(World world) {
 			ComponentTypeFactory tf = world.getComponentManager().typeFactory;
-			Aspect aspect = new Aspect();
+			Aspect aspect = new Aspect(world);
 			associate(tf, allTypes, aspect.allSet);
 			associate(tf, exclusionTypes, aspect.exclusionSet);
 			associate(tf, oneTypes, aspect.oneSet);
