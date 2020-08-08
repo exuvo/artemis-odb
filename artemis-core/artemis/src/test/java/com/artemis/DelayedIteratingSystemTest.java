@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 public class DelayedIteratingSystemTest
 {
-	protected LinkedList<Entity> entitiesOrdered;
+	protected LinkedList<Integer> entitiesOrdered;
 	private World world;
 	private ExpirationSystem es;
 
@@ -19,7 +19,7 @@ public class DelayedIteratingSystemTest
 		world = new World(new WorldConfiguration()
 				.setSystem(new ExpirationSystem()));
 		world.inject(this);
-		entitiesOrdered = new LinkedList<Entity>();
+		entitiesOrdered = new LinkedList<Integer>();
 	}
 
 	@Test
@@ -27,25 +27,25 @@ public class DelayedIteratingSystemTest
 	{
 		assertEquals(0, entitiesOrdered.size());
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
@@ -80,19 +80,19 @@ public class DelayedIteratingSystemTest
 	{
 		assertEquals(0, entitiesOrdered.size());
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
@@ -127,10 +127,10 @@ public class DelayedIteratingSystemTest
 		}
 	}
 
-	private Entity createEntity()
+	private int create()
 	{
-		final Entity e = world.createEntity();
-		e.edit().add(new Expiration(1f));
+		final int e = world.create();
+		world.edit(e).add(new Expiration(1f));
 
 		entitiesOrdered.addLast(e);
 		return e;
@@ -171,7 +171,7 @@ public class DelayedIteratingSystemTest
 		@Override
 		protected void processExpired(final int e) {
 			expiredLastRound++;
-			assertEquals(e, entitiesOrdered.removeFirst().id);
+			assertEquals(Integer.valueOf(e), entitiesOrdered.removeFirst());
 			world.delete(e);
 		}
 

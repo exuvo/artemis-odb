@@ -24,7 +24,7 @@ import org.junit.Test;
  */
 public class EntityComponentLifecycleIntegrationTest {
 
-    // Entity lifecycle ///////////////////////////////////////////////////////////////////////////////////////////
+    // int lifecycle ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     public void When_creating_entity_Should_not_affect_subscriptions_before_processing() {
@@ -409,8 +409,7 @@ public class EntityComponentLifecycleIntegrationTest {
                         }
                     });
                     entityId = world.create();
-                    Entity entity = world.getEntity(entityId);
-                    entity.deleteFromWorld();
+                    world.delete(entityId);
                 }
                 if (timesProcessed == 1) {
                     Assert.assertEquals(0, inserted);

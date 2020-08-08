@@ -88,8 +88,12 @@ public class FieldHandlerTest {
         }
     }
 
-    private static class SomeManager extends Manager{
-
+    private static class SomeManager extends BaseSystem{
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
     private static class AllFieldsResolver implements FieldResolver {

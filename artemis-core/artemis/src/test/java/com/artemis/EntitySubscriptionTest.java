@@ -177,15 +177,14 @@ public class EntitySubscriptionTest {
 	@Test
 	public void manager_entity_subscription_test() {
 		SubscribingManager sm = new SubscribingManager();
-		World world = new World(new WorldConfiguration()
-				.setSystem(sm));
+		World world = new World(new WorldConfiguration().setSystem(sm));
 
 		assertEquals(0, sm.inserted);
 		assertEquals(0, sm.removed);
 
-		world.createEntity().edit().create(ComponentX.class);
-		world.createEntity().edit().create(ComponentX.class);
-		world.createEntity().edit().create(ComponentX.class);
+		world.edit(world.create()).create(ComponentX.class);
+		world.edit(world.create()).create(ComponentX.class);
+		world.edit(world.create()).create(ComponentX.class);
 		world.process();
 
 		assertEquals(3, sm.inserted);
@@ -210,9 +209,9 @@ public class EntitySubscriptionTest {
 		config.setSystem(new TestManager());
 		World world = new World(config);
 
-		Entity entity = world.createEntity();
+		int entity = world.create();
 		world.process();
-		entity.deleteFromWorld();
+		world.delete(entity);
 		world.process();
 	}
 	
@@ -230,19 +229,19 @@ public class EntitySubscriptionTest {
 		
 		assertEquals(0, counterX.insertedEntities);
 		
-		Entity entityX = world.createEntity();
+		int entityX = world.create();
 		mapperX.create(entityX);
 		
 		world.process();
 		assertEquals(1, counterX.insertedEntities);
 		
-		Entity entityY = world.createEntity();
+		int entityY = world.create();
 		mapperY.create(entityY);
 
 		world.process();
 		assertEquals(1, counterX.insertedEntities);
 		
-		Entity entityXY = world.createEntity();
+		int entityXY = world.create();
 		mapperX.create(entityXY);
 		mapperY.create(entityXY);
 
@@ -251,31 +250,32 @@ public class EntitySubscriptionTest {
 
 		assertEquals(0, counterX.removedEntities);
 		
-		entityX.deleteFromWorld();
+		world.delete(entityX);
 		world.process();
 		assertEquals(1, counterX.removedEntities);
 		
-		entityY.deleteFromWorld();
+		world.delete(entityY);
 		world.process();
 		assertEquals(1, counterX.removedEntities);
 		
-		entityXY.deleteFromWorld();
+		world.delete(entityXY);
 		world.process();
 		assertEquals(2, counterX.removedEntities);
 	}
 
-	static class SubscribingManager extends Manager
-			implements  EntitySubscription.SubscriptionListener {
+	static class SubscribingManager extends BaseEntitySystem {
 
 		int inserted, removed;
-
-		@Override
-		protected void initialize() {
-			AspectSubscriptionManager asm = world.getAspectSubscriptionManager();
-			EntitySubscription subscription = asm.get(all(ComponentX.class));
-			subscription.addSubscriptionListener(this);
+		
+		public SubscribingManager() {
+			super(all(ComponentX.class));
 		}
-
+		
+		@Override
+		protected void processSystem() {
+		
+		}
+		
 		public void killAlmostAll() {
 			AspectSubscriptionManager asm = world.getAspectSubscriptionManager();
 			EntitySubscription subscription = asm.get(all(ComponentX.class));
@@ -297,10 +297,15 @@ public class EntitySubscriptionTest {
 		}
 	}
 
-	static class TestManager extends Manager {
+	static class TestManager extends BaseSystem {
 			AspectSubscriptionManager subscriptionManager;
-
-			@Override
+		
+		@Override
+		protected void processSystem() {
+		
+		}
+		
+		@Override
 			protected void initialize() {
 				EntitySubscription subscription = subscriptionManager.get(all());
 
@@ -311,8 +316,6 @@ public class EntitySubscriptionTest {
 						for (int i = 0; i < entities.size(); i++) {
 							int entityId = data[i];
 							assertEquals(0, entityId);
-
-							assertNotNull(world.getEntity(entityId));
 						}
 					}
 
@@ -322,14 +325,13 @@ public class EntitySubscriptionTest {
 						for (int i = 0; i < entities.size(); i++) {
 							int entityId = data[i];
 							assertEquals(0, entityId);
-							assertNotNull(world.getEntity(entityId));
 						}
 					}
 				});
 			}
 		}
 	
-	static class CompXCounterSystem extends EntitySystem {
+	static class CompXCounterSystem extends BaseEntitySystem {
 		
 		public int insertedEntities = 0;
 		public int removedEntities = 0;
@@ -342,12 +344,12 @@ public class EntitySubscriptionTest {
 		protected void processSystem() {}
 		
 		@Override
-		public void inserted(Entity entity) {
+		public void inserted(int entity) {
 			insertedEntities++;
 		}
 		
 		@Override
-		public void removed(Entity entity) {
+		public void removed(int entity) {
 			removedEntities++;
 		}
 

@@ -1,5 +1,6 @@
 package com.artemis;
 
+import com.artemis.annotations.DelayedComponentRemoval;
 import com.artemis.utils.Bag;
 import com.artemis.utils.BitVector;
 import com.artemis.utils.IntBag;
@@ -32,7 +33,7 @@ public class EntitySubscription {
     final IntBag inserted = new IntBag();
     final IntBag removed = new IntBag();
     
-    final Bag<SubscriptionListener> listeners = new Bag<SubscriptionListener>();
+    final Bag<SubscriptionListener> listeners = new Bag<>();
     
     EntitySubscription(World world, Aspect.Builder builder) {
         

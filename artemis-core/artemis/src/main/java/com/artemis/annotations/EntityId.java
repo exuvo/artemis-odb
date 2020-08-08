@@ -1,6 +1,5 @@
 package com.artemis.annotations;
 
-import com.artemis.Entity;
 import com.artemis.link.EntityLinkManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;

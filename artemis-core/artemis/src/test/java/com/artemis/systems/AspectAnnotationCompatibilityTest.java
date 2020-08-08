@@ -20,14 +20,14 @@ public class AspectAnnotationCompatibilityTest {
     }
 
     @All(ComponentX.class)
-    class System2 extends EntityProcessingSystem {
+    class System2 extends IteratingSystem {
         @Override
-        protected void process(Entity e) {
+        protected void process(int e) {
         }
     }
 
     @All(ComponentX.class)
-    class System3 extends EntitySystem {
+    class System3 extends BaseEntitySystem {
         @Override
         protected void processSystem() {
         }
@@ -42,7 +42,7 @@ public class AspectAnnotationCompatibilityTest {
     }
 
     @All(ComponentX.class)
-    class System5 extends IntervalEntitySystem {
+    class System5 extends IntervalSystem {
         public System5() {
             super(1);
         }
@@ -53,19 +53,19 @@ public class AspectAnnotationCompatibilityTest {
     }
 
     @All(ComponentX.class)
-    class System6 extends DelayedEntityProcessingSystem {
+    class System6 extends DelayedIteratingSystem {
         @Override
-        protected float getRemainingDelay(Entity e) {
+        protected float getRemainingDelay(int e) {
             return 0;
         }
 
         @Override
-        protected void processDelta(Entity e, float accumulatedDelta) {
+        protected void processDelta(int e, float accumulatedDelta) {
 
         }
 
         @Override
-        protected void processExpired(Entity e) {
+        protected void processExpired(int e) {
 
         }
     }
@@ -109,6 +109,6 @@ public class AspectAnnotationCompatibilityTest {
     }
 
     private void assertSystemHasAspect(World world, Class<? extends BaseEntitySystem> type) {
-        assertFalse(type.getClass().getSimpleName(),world.getSystem(type).getSubscription().getAspect().getAllSet().isEmpty());
+        assertFalse(type.getClass().getSimpleName(), world.getSystem(type).getSubscription().getAspect().getAllSet().isEmpty());
     }
 }

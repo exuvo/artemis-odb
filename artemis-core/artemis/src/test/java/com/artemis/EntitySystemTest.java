@@ -2,7 +2,7 @@ package com.artemis;
 
 import static org.junit.Assert.assertEquals;
 
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 import org.junit.Test;
 
 /**
@@ -16,8 +16,8 @@ public class EntitySystemTest {
 		World w = new World(new WorldConfiguration()
 			.setSystem(new IteratorTestSystem(1)));
 
-		Entity e = w.createEntity();
-		e.edit().add(new C());
+		int e = w.create();
+		w.edit(e).add(new C());
 
 		w.process();
 	}
@@ -30,7 +30,7 @@ public class EntitySystemTest {
 				.setSystem(es1)
 				.setSystem(es2));
 
-		Entity e = w.createEntity();
+		int e = w.create();
 		w.process();
 
 		assertEquals(1, es1.getSubscription().getEntities().size());
@@ -40,7 +40,7 @@ public class EntitySystemTest {
 	public static class C extends Component {}
 	public static class C2 extends Component {}
 
-	public static class IteratorTestSystem extends EntitySystem {
+	public static class IteratorTestSystem extends BaseEntitySystem {
 		public int expectedSize;
 		
 		@SuppressWarnings("unchecked")
@@ -61,21 +61,21 @@ public class EntitySystemTest {
 		}
 	}
 
-	public static class ExcludingSystem extends EntityProcessingSystem {
+	public static class ExcludingSystem extends IteratingSystem {
 		public ExcludingSystem() {
 			super(Aspect.exclude(C.class));
 		}
 
 		@Override
-		protected void process(Entity e) {}
+		protected void process(int e) {}
 	}
 
-	public static class EmptySystem extends EntityProcessingSystem {
+	public static class EmptySystem extends IteratingSystem {
 		public EmptySystem() {
 			super(Aspect.all());
 		}
 
 		@Override
-		protected void process(Entity e) {}
+		protected void process(int e) {}
 	}
 }

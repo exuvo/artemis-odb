@@ -40,12 +40,17 @@ public class SmarterWireTest {
 		assertTrue(tiledMapSystem.factory.getClass() == EntityFactory.class);
 	}
 	
-	abstract class AbstractEntityFactory extends Manager {
+	abstract class AbstractEntityFactory extends BaseSystem {
 		protected ComponentMapper<ComponentX> x;
 	}
 	
 	class EntityFactory extends AbstractEntityFactory {
 		private ComponentMapper<ComponentY> y;
+		
+		@Override
+		protected void processSystem() {
+		
+		}
 	}
 	
 	class TiledMapSystem extends VoidEntitySystem {

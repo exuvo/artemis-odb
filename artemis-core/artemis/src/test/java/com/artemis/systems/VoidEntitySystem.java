@@ -1,9 +1,9 @@
 package com.artemis.systems;
 
 import com.artemis.Aspect;
-import com.artemis.EntitySystem;
+import com.artemis.BaseEntitySystem;
 
-public abstract class VoidEntitySystem extends EntitySystem {
+public abstract class VoidEntitySystem extends BaseEntitySystem {
 
 	public VoidEntitySystem() {
 		super(Aspect.exclude()); // exclude is only semantic here...

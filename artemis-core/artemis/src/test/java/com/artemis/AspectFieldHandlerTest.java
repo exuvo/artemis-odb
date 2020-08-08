@@ -60,10 +60,10 @@ public class AspectFieldHandlerTest {
 	}
 	
 	private static void checkArchetype(World world, Archetype archetype) {
-		Entity e = world.getEntity(world.create(archetype));
-		assertNotNull(e.getComponent(ComponentX.class));
-		assertNotNull(e.getComponent(ReusedComponent.class));
-		assertNull(e.getComponent(ComponentY.class));
+		int e = world.create(archetype);
+		assertNotNull(world.getMapper(ComponentX.class).get(e));
+		assertNotNull(world.getMapper(ReusedComponent.class).get(e));
+		assertNull(world.getMapper(ComponentY.class).get(e));
 	}
 
 	private static class ObjectAspectFields {

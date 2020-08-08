@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 
 /**
  * PerformerWorldTest.
@@ -21,7 +21,7 @@ public class PerformerWorldTest {
 				.setSystem(new SystemA()));
 
 		for (int i = 0; i < 10; i++) {
-			world.createEntity().edit().add(new TestComponent());
+			world.edit(world.create()).add(new TestComponent());
 		}
 	}
 
@@ -37,7 +37,7 @@ public class PerformerWorldTest {
 	}
 
 
-	private static class SystemA extends EntityProcessingSystem {
+	private static class SystemA extends IteratingSystem {
 		public int step;
 
 		@SuppressWarnings("unchecked")
@@ -52,9 +52,9 @@ public class PerformerWorldTest {
 		}
 
 		@Override
-		protected void process(Entity e) {
+		protected void process(int e) {
 			try {
-				e.deleteFromWorld();
+				world.delete(e);
 			} catch (NullPointerException ex) {
 				throw new NullPointerException(""+step);
 			}

@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.artemis.component.ComponentX;
 import com.artemis.component.ComponentY;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 import com.artemis.systems.VoidEntitySystem;
 
 public class ArchetypeSystemTest {
@@ -52,7 +52,7 @@ public class ArchetypeSystemTest {
 
 	private void archetypeEntity(Archetype arch, int s) {
 		for (int i = 0; s > i; i++) {
-			world.createEntity(arch);
+			world.create(arch);
 		}
 	}
 	
@@ -75,7 +75,7 @@ public class ArchetypeSystemTest {
 		protected void processSystem() {}
 	}
 	
-	private static class Es1 extends EntityProcessingSystem {
+	private static class Es1 extends IteratingSystem {
 
 		private ComponentMapper<ComponentX> componentXMapper;
 		
@@ -85,12 +85,12 @@ public class ArchetypeSystemTest {
 		}
 
 		@Override
-		protected void process(Entity e) {
+		protected void process(int e) {
 			assertNotNull(componentXMapper.get(e));
 		}
 	}
 	
-	private static class Es2 extends EntityProcessingSystem {
+	private static class Es2 extends IteratingSystem {
 		
 		private ComponentMapper<ComponentX> componentXMapper;
 		
@@ -100,7 +100,7 @@ public class ArchetypeSystemTest {
 		}
 		
 		@Override
-		protected void process(Entity e) {
+		protected void process(int e) {
 			assertNotNull(componentXMapper.get(e));
 		}
 	}

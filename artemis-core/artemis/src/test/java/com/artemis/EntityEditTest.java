@@ -17,15 +17,14 @@ public class EntityEditTest {
 	@Test
 	public void basic_entity_edit_test() {
 		LeManager lm = new LeManager();
-		World world = new World(new WorldConfiguration()
-				.setSystem(lm));
+		World world = new World(new WorldConfiguration().setSystem(lm));
 
-		Entity e = world.createEntity();
+		int e = world.create();
 		world.process();
 		
 		assertEquals(1, lm.added);
 
-		EntityEdit edit = e.edit();
+		EntityEdit edit = world.edit(e);
 		edit.create(ComponentX.class);
 		edit.create(ComponentY.class);
 		
@@ -38,17 +37,17 @@ public class EntityEditTest {
 	public void test_composition_identity_simple_case() {
 		World world = new World();
 
-		Entity e = world.createEntity();
+		int e = world.create();
 		world.process();
-		assertEquals(0, e.getCompositionId());
+		assertEquals(0, world.getComponentManager().getIdentity(e));
 	}
 	
 	@Test
 	public void test_composition_identity() {
 		World world = new World();
 
-		Entity e = world.createEntity();
-		assertEquals(0, e.getCompositionId());
+		int e = world.create();
+		assertEquals(0, world.getComponentManager().getIdentity(e));
 	}
 
 	@Test
@@ -82,12 +81,21 @@ public class EntityEditTest {
 
 
 	
-	private static class LeManager extends Manager {
+	private static class LeManager extends BaseEntitySystem {
 		int added;
+		
+		public LeManager() {
+			super(Aspect.all());
+		}
 
 		@Override
-		public void added(Entity e) {
+		public void inserted(int e) {
 			added++;
+		}
+		
+		@Override
+		protected void processSystem() {
+		
 		}
 	}
 

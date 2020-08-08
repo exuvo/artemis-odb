@@ -3,7 +3,6 @@ package com.artemis.link;
 import com.artemis.*;
 import com.artemis.annotations.EntityId;
 import com.artemis.annotations.LinkPolicy;
-import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import org.junit.Test;
 
@@ -25,7 +24,7 @@ public class EntityLinkManagerTest {
 		ComponentMapper<EntityLink> mapper = world.getMapper(EntityLink.class);
 
 		EntityLinkManager elm = world.getSystem(EntityLinkManager.class);
-		elm.register(EntityLink.class, "otherId", new EmptyLinkListener(e, otherA, -1));
+		elm.register(EntityLink.class, "otherID", new EmptyLinkListener(e, otherA, -1));
 
 		// establish empty link
 		mapper.create(e);
@@ -48,7 +47,7 @@ public class EntityLinkManagerTest {
 		ComponentMapper<MultiLinkCheckAll> mapper = world.getMapper(MultiLinkCheckAll.class);
 
 		EntityLinkManager elm = world.getSystem(EntityLinkManager.class);
-		elm.register(EntityLink.class, "otherId", new EmptyLinkListener(e, otherA, -1));
+		elm.register(EntityLink.class, "otherID", new EmptyLinkListener(e, otherA, -1));
 
 		// establish empty link
 		mapper.create(e);
@@ -73,25 +72,25 @@ public class EntityLinkManagerTest {
 		ComponentMapper<EntityLink> mapper = world.getMapper(EntityLink.class);
 
 		EntityLinkManager elm = world.getSystem(EntityLinkManager.class);
-		elm.register(EntityLink.class, "otherId", new MyLinkListener(e, otherA, otherB));
+		elm.register(EntityLink.class, "otherID", new MyLinkListener(e, otherA, otherB));
 
 		// establish link
-		mapper.create(e).otherId = otherA;
+		mapper.create(e).otherID = otherA;
 		world.process();
 
 		// target change
-		mapper.get(e).otherId = otherB;
+		mapper.get(e).otherID = otherB;
 		world.process();
 
 		// target dead
 		world.delete(otherB);
 		world.process();
-		assertEquals(-1, mapper.get(e).otherId);
+		assertEquals(-1, mapper.get(e).otherID);
 
 		// on restablish
-		mapper.get(e).otherId = otherA;
+		mapper.get(e).otherID = otherA;
 		world.process();
-		assertEquals(otherA, mapper.get(e).otherId);
+		assertEquals(otherA, mapper.get(e).otherID);
 
 		// kill link
 		world.delete(e);
@@ -109,28 +108,28 @@ public class EntityLinkManagerTest {
 		final int otherB = world.create();
 		final int e = world.create();
 
-		ComponentMapper<EntityLinkB> mapper = world.getMapper(EntityLinkB.class);
+		ComponentMapper<EntityLink> mapper = world.getMapper(EntityLink.class);
 
 		EntityLinkManager elm = world.getSystem(EntityLinkManager.class);
-		elm.register(EntityLinkB.class, new MyLinkListener(e, otherA, otherB));
+		elm.register(EntityLink.class, new MyLinkListener(e, otherA, otherB));
 
 		// establish link
-		mapper.create(e).other = world.getEntity(otherA);
+		mapper.create(e).otherID = otherA;
 		world.process();
 
 		// target change
-		mapper.get(e).other = world.getEntity(otherB);
+		mapper.get(e).otherID = otherB;
 		world.process();
 
 		// target dead
 		world.delete(otherB);
 		world.process();
-		assertNull(mapper.get(e).other);
+		assertEquals(-1, mapper.get(e).otherID);
 
 		// on restablish
-		mapper.get(e).other = world.getEntity(otherA);
+		mapper.get(e).otherID = otherA;
 		world.process();
-		assertEquals(otherA, mapper.get(e).other.getId());
+		assertEquals(otherA, mapper.get(e).otherID);
 
 		// kill link
 		world.delete(e);
@@ -175,11 +174,11 @@ public class EntityLinkManagerTest {
 		});
 
 		// establish link
-		mapper.create(e).other = world.getEntity(otherA);
+		mapper.create(e).other = otherA;
 		world.process();
 
 		// target change
-		mapper.get(e).other = world.getEntity(otherB);
+		mapper.get(e).other = otherB;
 		world.process();
 
 		// target dead
@@ -188,9 +187,9 @@ public class EntityLinkManagerTest {
 		assertNotNull(mapper.get(e).other); // because only checking source
 
 		// on restablish
-		mapper.get(e).other = world.getEntity(otherA);
+		mapper.get(e).other = otherA;
 		world.process();
-		assertEquals(otherA, mapper.get(e).other.getId());
+		assertEquals(otherA, mapper.get(e).other);
 
 		// kill link
 		world.delete(e);
@@ -233,11 +232,11 @@ public class EntityLinkManagerTest {
 		});
 
 		// establish link
-		mapper.create(e).other = world.getEntity(otherA);
+		mapper.create(e).other = otherA;
 		world.process();
 
 		// target change
-		mapper.get(e).other = world.getEntity(otherB);
+		mapper.get(e).other = otherB;
 		world.process();
 
 		// target dead
@@ -246,9 +245,9 @@ public class EntityLinkManagerTest {
 		assertNotNull(mapper.get(e).other); // because skipping everything
 
 		// on restablish
-		mapper.get(e).other = world.getEntity(otherA);
+		mapper.get(e).other = otherA;
 		world.process();
-		assertEquals(otherA, mapper.get(e).other.getId());
+		assertEquals(otherA, mapper.get(e).other);
 
 		// kill link
 		world.delete(e);
@@ -291,8 +290,8 @@ public class EntityLinkManagerTest {
 		});
 
 		// establish link
-		mapper.create(e).other.add(world.getEntity(otherB));
-		mapper.create(e).other.add(world.getEntity(padding));
+		mapper.create(e).other.add(otherB);
+		mapper.create(e).other.add(padding);
 		world.process();
 
 		// target dead
@@ -301,7 +300,7 @@ public class EntityLinkManagerTest {
 		assertEquals(2, mapper.get(e).other.size()); // because skipping everything
 
 		// target change
-		mapper.get(e).other.add(world.getEntity(otherA));
+		mapper.get(e).other.add(otherA);
 		world.process();
 
 		// kill link
@@ -347,8 +346,8 @@ public class EntityLinkManagerTest {
 		});
 
 		// establish link
-		mapper.create(e).other.add(world.getEntity(otherB));
-		mapper.create(e).other.add(world.getEntity(padding));
+		mapper.create(e).other.add(otherB);
+		mapper.create(e).other.add(padding);
 		world.process();
 
 		// target dead
@@ -357,7 +356,7 @@ public class EntityLinkManagerTest {
 		assertEquals(2, mapper.get(e).other.size()); // because skipping everything
 
 		// target change
-		mapper.get(e).other.add(world.getEntity(otherA));
+		mapper.get(e).other.add(otherA);
 		world.process();
 
 		// kill link
@@ -436,25 +435,25 @@ public class EntityLinkManagerTest {
 		ComponentMapper<MuchOfEverything> mapper = world.getMapper(MuchOfEverything.class);
 
 		EntityLinkManager elm = world.getSystem(EntityLinkManager.class);
-		elm.register(MuchOfEverything.class, "otherId", new MyLinkListener(e, otherA, otherB));
+		elm.register(MuchOfEverything.class, "otherID", new MyLinkListener(e, otherA, otherB));
 
 		// establish link
-		mapper.create(e).otherId = otherA;
+		mapper.create(e).otherID = otherA;
 		world.process();
 
 		// target change
-		mapper.get(e).otherId = otherB;
+		mapper.get(e).otherID = otherB;
 		world.process();
 
 		// target dead
 		world.delete(otherB);
 		world.process();
-		assertEquals(-1, mapper.get(e).otherId);
+		assertEquals(-1, mapper.get(e).otherID);
 
 		// on restablish
-		mapper.get(e).otherId = otherA;
+		mapper.get(e).otherID = otherA;
 		world.process();
-		assertEquals(otherA, mapper.get(e).otherId);
+		assertEquals(otherA, mapper.get(e).otherID);
 
 		// kill link
 		world.delete(e);
@@ -463,32 +462,28 @@ public class EntityLinkManagerTest {
 
 	public static class EntityLink extends Component {
 		@EntityId
-		public int otherId = -1;
-		public int nothingHere;
-	}
-
-	public static class EntityLinkB extends Component {
-		public Entity other;
+		public int otherID = -1;
 		public int nothingHere;
 	}
 
 	public static class EntityLinkC extends Component {
-		@LinkPolicy(CHECK_SOURCE)
-		public Entity other;
+		@EntityId @LinkPolicy(CHECK_SOURCE)
+		public int other;
 	}
 
 	public static class EntityLinkSkip extends Component {
-		@LinkPolicy(SKIP)
-		public Entity other;
+		@EntityId @LinkPolicy(SKIP)
+		public int other;
 	}
 
 	public static class MultiLinkSkip extends Component {
-		@LinkPolicy(SKIP)
-		public Bag<Entity> other = new Bag<Entity>();
+		@EntityId @LinkPolicy(SKIP)
+		public IntBag other = new IntBag();
 	}
 
 	public static class MultiLinkSkipTargetCheck extends Component {
-		public Bag<Entity> other = new Bag<Entity>();
+		@EntityId
+		public IntBag other = new IntBag();
 	}
 
 	public static class MultiLinkCheckAll extends Component {
@@ -499,9 +494,9 @@ public class EntityLinkManagerTest {
 
 	public static class MuchOfEverything extends Component {
 		@EntityId public IntBag intIds = new IntBag();
-		@EntityId public int otherId;
-		public Entity e;
-		public Bag<Entity> entities = new Bag<Entity>();
+		@EntityId public int otherID;
+		@EntityId public int e;
+		@EntityId public IntBag entities = new IntBag();
 		public int notMe;
 	}
 

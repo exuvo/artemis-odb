@@ -9,7 +9,7 @@ import com.artemis.component.CountingPooledComponent;
 import org.junit.Test;
 
 import com.artemis.component.ReusedComponent;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 
 public class WorldPooledComponentTest
 {
@@ -47,24 +47,24 @@ public class WorldPooledComponentTest
 	@Test
 	public void creating_pooled_components_returns_old_to_pool() {
 		World w = new World();
-		Entity e = w.createEntity();
-		CountingPooledComponent cpc1 = e.edit().create(CountingPooledComponent.class);
+		int e = w.create();
+		CountingPooledComponent cpc1 = w.edit(e).create(CountingPooledComponent.class);
 		w.process();
 
-		e.edit().create(CountingPooledComponent.class);
+		w.edit(e).create(CountingPooledComponent.class);
 		w.process();
 
-		assertEquals(cpc1, e.edit().create(CountingPooledComponent.class));
+		assertEquals(cpc1, w.edit(e).create(CountingPooledComponent.class));
 	}
 
 	private int createEntity(World world)
 	{
-		Entity e = world.createEntity();
-		ReusedComponent component = e.edit().create(ReusedComponent.class);
-		return e.hashCode();
+		int e = world.create();
+		ReusedComponent component = world.edit(e).create(ReusedComponent.class);
+		return Integer.hashCode(e);
 	}
 	
-	static class SystemComponentEntityRemover extends EntityProcessingSystem
+	static class SystemComponentEntityRemover extends IteratingSystem
 	{
 		@SuppressWarnings("unchecked")
 		public SystemComponentEntityRemover()
@@ -73,13 +73,13 @@ public class WorldPooledComponentTest
 		}
 
 		@Override
-		protected void process(Entity e)
+		protected void process(int e)
 		{
-			e.deleteFromWorld();
+			world.delete(e);
 		}
 	}
 	
-	static class SystemComponentPooledRemover extends EntityProcessingSystem
+	static class SystemComponentPooledRemover extends IteratingSystem
 	{
 		@SuppressWarnings("unchecked")
 		public SystemComponentPooledRemover()
@@ -88,9 +88,9 @@ public class WorldPooledComponentTest
 		}
 		
 		@Override
-		protected void process(Entity e)
+		protected void process(int e)
 		{
-			e.edit().remove(ReusedComponent.class);
+			world.getMapper(ReusedComponent.class).remove(e);
 		}
 	}
 }

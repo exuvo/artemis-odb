@@ -31,16 +31,16 @@ public class ComponentPoolTest
 
 		World world = new World();
 
-		Entity e = world.createEntity();
-		PooledString ps = e.edit().create(PooledString.class);
+		int e = world.create();
+		PooledString ps = world.edit(e).create(PooledString.class);
 		ps.s = "i'm instanced";
 
 		world.process();
-		e.deleteFromWorld();
+		world.delete(e);
 		world.process();
 
-		Entity e2 = world.createEntity();
-		PooledString ps2 = e2.edit().create(PooledString.class);
+		int e2 = world.create();
+		PooledString ps2 = world.edit(e2).create(PooledString.class);
 
 		assertTrue(ps == ps2);
 		assertNull(ps.s);

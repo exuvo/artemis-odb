@@ -20,7 +20,7 @@ public class AspectSubscriptionManagerTest {
 	}
 
 	private void entity(Class<? extends Component>... components) {
-		EntityEdit ee = world.createEntity().edit();
+		EntityEdit ee = world.edit(world.create());
 		for (Class<? extends Component> c : components) {
 			ee.create(c);
 		}
@@ -104,7 +104,7 @@ public class AspectSubscriptionManagerTest {
 
 	@Test
 	public void create_delete_same_tick() {
-		CreateInremoveSystem es = new CreateInremoveSystem();
+		CreateInRemoveSystem es = new CreateInRemoveSystem();
 		World w = new World(new WorldConfiguration().setSystem(es));
 
 		int original = w.create();
@@ -118,17 +118,17 @@ public class AspectSubscriptionManagerTest {
 		w.process();
 
 		assertEquals("entites should have same components/compositionId",
-			w.getEntity(original).getCompositionId(),
-			w.getEntity(es.replacedEntityId).getCompositionId());
+			w.getComponentManager().getIdentity(original),
+				w.getComponentManager().getIdentity(es.replacedEntityId));
 	}
 
-	public static class CreateInremoveSystem extends IteratingSystem {
+	public static class CreateInRemoveSystem extends IteratingSystem {
 		private ComponentMapper<ComponentX> componentXMapper;
 
 		int replacedEntityId = -1;
 		int deleteCount = 0;
 
-		public CreateInremoveSystem() {
+		public CreateInRemoveSystem() {
 			super(all(ComponentX.class));
 		}
 
@@ -162,15 +162,24 @@ public class AspectSubscriptionManagerTest {
 		public void removed(IntBag entities) {}
 	}
 
-	private static class BootstrappingManager extends Manager {
+	private static class BootstrappingManager extends BaseEntitySystem {
 		private ComponentMapper<ComponentX> componentXMapper;
-
+		
+		public BootstrappingManager() {
+			super(Aspect.all());
+		}
+		
 		@Override
-		public void added(Entity entityId) {
+		public void inserted(int entityId) {
 			if (!componentXMapper.has(entityId))
 				return;
 
-			entityId.edit().create(ComponentY.class);
+			world.edit(entityId).create(ComponentY.class);
+		}
+		
+		@Override
+		protected void processSystem() {
+		
 		}
 	}
 }

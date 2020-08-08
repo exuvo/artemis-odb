@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import com.artemis.component.ComponentX;
 import com.artemis.component.ComponentY;
-import com.artemis.systems.DelayedEntityProcessingSystem;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.DelayedIteratingSystem;
+import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.Bag;
 import org.openjdk.jol.info.ClassLayout;
 import org.openjdk.jol.vm.VM;
@@ -34,7 +34,6 @@ public class WorldTest
 		print(DelayedComponentRemover.class);
 		print(EntityManager.class);
 		print(EntitySubscription.class);
-		print(EntitySubscription.SubscriptionExtra.class);
 		print(EntityTransmuter.class);
 		print(EntityTransmuter.TransmuteOperation.class);
 		print(ImmediateComponentRemover.class);
@@ -54,15 +53,14 @@ public class WorldTest
 		World world = new World(new WorldConfiguration());
 
 		for (int i = 0; i < 100; i++) {
-			Entity e = world.createEntity();
-			if (i == 0) e.edit().add(new ComponentX());
+			int e = world.create();
+			if (i == 0) world.edit(e).add(new ComponentX());
 		}
 
 		world.process();
 
 		for (int i = 0; i < 100; i++) {
-			Entity e = world.getEntity(i);
-			e.getComponent(ComponentX.class);
+			world.getMapper(ComponentX.class).get(i);
 		}
 	}
 
@@ -73,8 +71,8 @@ public class WorldTest
 				.setSystem(new SystemComponentXRemover())
 				.setSystem(new SystemB()));
 
-		Entity e = world.createEntity();
-		e.edit().create(ComponentX.class);
+		int e = world.create();
+		world.edit(e).create(ComponentX.class);
 		
 		world.process();
 	}
@@ -86,18 +84,18 @@ public class WorldTest
 		World world = new World(new WorldConfiguration()
 				.setSystem(es));
 
-		Entity e1 = createEntity(world);
+		int e1 = createEntity(world);
 		
 		world.setDelta(0.5f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 		
-		Entity e2 = createEntity(world);
+		int e2 = createEntity(world);
 		
 		world.setDelta(0.75f);
 		world.process();
 		assertEquals(1, es.expiredLastRound);
-		assertEquals(0.25f, es.deltas.get(e2.getId()), 0.01f);
+		assertEquals(0.25f, es.deltas.get(e2), 0.01f);
 		world.delta = 0;
 		world.process();
 		assertEquals(1, es.getSubscription().getEntities().size());
@@ -111,14 +109,14 @@ public class WorldTest
 		assertEquals(0, es.getSubscription().getEntities().size());
 	}
 
-	private Entity createEntity(World world)
+	private int createEntity(World world)
 	{
-		Entity e = world.createEntity();
-		e.edit().create(ComponentY.class);
+		int e = world.create();
+		world.edit(e).create(ComponentY.class);
 		return e;
 	}
 
-	static class SystemComponentXRemover extends EntityProcessingSystem
+	static class SystemComponentXRemover extends IteratingSystem
 	{
 		@SuppressWarnings("unchecked")
 		public SystemComponentXRemover()
@@ -127,13 +125,13 @@ public class WorldTest
 		}
 
 		@Override
-		protected void process(Entity e)
+		protected void process(int e)
 		{
-			e.edit().remove(ComponentX.class);
+			world.edit(e).remove(ComponentX.class);
 		}
 	}
 
-	static class SystemB extends EntityProcessingSystem
+	static class SystemB extends IteratingSystem
 	{
 		ComponentMapper<ComponentX> xm;
 
@@ -144,13 +142,13 @@ public class WorldTest
 		}
 
 		@Override
-		protected void process(Entity e)
+		protected void process(int e)
 		{
 			xm.get(e);
 		}
 	}
 	
-	static class SystemY extends EntityProcessingSystem
+	static class SystemY extends IteratingSystem
 	{
 		ComponentMapper<ComponentY> ym;
 		
@@ -161,14 +159,14 @@ public class WorldTest
 		}
 		
 		@Override
-		protected void process(Entity e)
+		protected void process(int e)
 		{
 			Assert.assertNotNull(ym);
 			ym.get(e);
 		}
 	}
 	
-	static class ExpirationSystem extends DelayedEntityProcessingSystem
+	static class ExpirationSystem extends DelayedIteratingSystem
 	{
 		// don't do this IRL
 		private Bag<Float> deltas = new Bag<Float>();
@@ -180,29 +178,29 @@ public class WorldTest
 		}
 		
 		@Override
-		public void inserted(Entity e) {
-			deltas.set(e.getId(), 1f);
+		public void inserted(int e) {
+			deltas.set(e, 1f);
 			super.inserted(e);
 		}
 		
 		@Override
-		protected float getRemainingDelay(Entity e) {
-			return deltas.get(e.getId());
+		protected float getRemainingDelay(int e) {
+			return deltas.get(e);
 		}
 
 		@Override
-		protected void processDelta(Entity e, float accumulatedDelta) {
-			float remaining = deltas.get(e.getId());
+		protected void processDelta(int e, float accumulatedDelta) {
+			float remaining = deltas.get(e);
 			remaining -=  accumulatedDelta;
 			offerDelay(remaining);
-			deltas.set(e.getId(), remaining);
+			deltas.set(e, remaining);
 		}
 
 		@Override
-		protected void processExpired(Entity e) {
+		protected void processExpired(int e) {
 			expiredLastRound++;
-			deltas.set(e.getId(), null);
-			e.deleteFromWorld();
+			deltas.set(e, null);
+			world.delete(e);
 		}
 		
 		@Override

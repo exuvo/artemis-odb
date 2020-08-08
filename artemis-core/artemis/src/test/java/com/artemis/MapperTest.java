@@ -8,14 +8,14 @@ import org.junit.Test;
 
 import com.artemis.component.ComponentX;
 import com.artemis.component.ComponentY;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 
 public class MapperTest {
 	
 	private World world;
 	private MappedSystem mappedSystem;
 	private MappedManager mappedManager;
-	private Entity entity;
+	private int entity;
 
 	@Before
 	public void init() {
@@ -25,8 +25,8 @@ public class MapperTest {
 		
 		world.inject(this);
 		
-		entity = world.createEntity();
-		EntityEdit edit = entity.edit();
+		entity = world.create();
+		EntityEdit edit = world.edit(entity);
 		edit.create(ComponentX.class);
 		edit.create(ComponentY.class);
 		
@@ -51,7 +51,7 @@ public class MapperTest {
 		assertEquals(ComponentY.class, mappedSystem.y.get(entity).getClass());
 	}
 	
-	private static class MappedSystem extends EntityProcessingSystem {
+	private static class MappedSystem extends IteratingSystem {
 		private ComponentMapper<ComponentX> x;
 		private ComponentMapper<ComponentY> y;
 		
@@ -61,13 +61,18 @@ public class MapperTest {
 		}
 
 		@Override
-		protected void process(Entity e) {}
+		protected void process(int e) {}
 		
 	}
 	
-	private static class MappedManager extends Manager {
+	private static class MappedManager extends BaseSystem {
 		private ComponentMapper<ComponentX> x;
 		private ComponentMapper<ComponentY> y;
+		
+		@Override
+		protected void processSystem() {
+		
+		}
 		
 		@Override
 		protected void initialize() {}

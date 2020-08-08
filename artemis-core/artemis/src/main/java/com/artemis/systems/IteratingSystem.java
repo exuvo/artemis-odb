@@ -12,7 +12,6 @@ import com.artemis.utils.IntBag;
  *
  * @author Arni Arent
  * @author Adrian Papari
- * @see EntityProcessingSystem Entity iteration by entity reference.
  */
 public abstract class IteratingSystem extends BaseEntitySystem {
 

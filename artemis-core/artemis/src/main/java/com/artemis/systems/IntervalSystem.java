@@ -23,12 +23,16 @@ public abstract class IntervalSystem extends BaseEntitySystem {
 		super(aspect);
 		this.interval = interval;
 	}
-
+	
+	public IntervalSystem(float interval) {
+		super();
+		this.interval = interval;
+	}
 
 	@Override
 	protected boolean checkProcessing() {
 		acc += getTimeDelta();
-		if(acc >= interval) {
+		if (acc >= interval) {
 			acc -= interval;
 			intervalDelta = (acc - intervalDelta);
 

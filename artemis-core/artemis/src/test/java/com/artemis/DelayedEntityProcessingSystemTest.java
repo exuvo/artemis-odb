@@ -7,11 +7,11 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.artemis.systems.DelayedEntityProcessingSystem;
+import com.artemis.systems.DelayedIteratingSystem;
 
 public class DelayedEntityProcessingSystemTest
 {
-	protected LinkedList<Entity> entitiesOrdered;
+	protected LinkedList<Integer> entitiesOrdered;
 	private World world;
 	private ExpirationSystem es;
 
@@ -20,7 +20,7 @@ public class DelayedEntityProcessingSystemTest
 		world = new World(new WorldConfiguration()
 				.setSystem(new ExpirationSystem()));
 		world.inject(this);
-		entitiesOrdered = new LinkedList<Entity>();
+		entitiesOrdered = new LinkedList<Integer>();
 	}
 
 	@Test
@@ -28,25 +28,25 @@ public class DelayedEntityProcessingSystemTest
 	{
 		assertEquals(0, entitiesOrdered.size());
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
 		assertEquals(0, es.expiredLastRound);
 
-		createEntity();
+		create();
 
 		world.setDelta(0.21f);
 		world.process();
@@ -81,19 +81,19 @@ public class DelayedEntityProcessingSystemTest
 	{
 		assertEquals(0, entitiesOrdered.size());
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
-		createEntity();
+		create();
 
 		step200ms(es);
 
@@ -128,10 +128,10 @@ public class DelayedEntityProcessingSystemTest
 		}
 	}
 
-	private Entity createEntity()
+	private int create()
 	{
-		final Entity e = world.createEntity();
-		e.edit().add(new Expiration(1f));
+		final int e = world.create();
+		world.edit(e).add(new Expiration(1f));
 
 		entitiesOrdered.addLast(e);
 		return e;
@@ -147,7 +147,7 @@ public class DelayedEntityProcessingSystemTest
 		}
 	}
 
-	public class ExpirationSystem extends DelayedEntityProcessingSystem
+	public class ExpirationSystem extends DelayedIteratingSystem
 	{
 		public int expiredLastRound;
 
@@ -159,21 +159,21 @@ public class DelayedEntityProcessingSystemTest
 		}
 
 		@Override
-		protected float getRemainingDelay(final Entity e) {
+		protected float getRemainingDelay(final int e) {
 			return em.get(e).delay;
 		}
 
 		@Override
-		protected void processDelta(final Entity e, final float accumulatedDelta) {
+		protected void processDelta(final int e, final float accumulatedDelta) {
 			final Expiration expires = em.get(e);
 			expires.delay -= accumulatedDelta;
 		}
 
 		@Override
-		protected void processExpired(final Entity e) {
+		protected void processExpired(final int e) {
 			expiredLastRound++;
-			assertEquals(e, entitiesOrdered.removeFirst());
-			e.deleteFromWorld();
+			assertEquals(Integer.valueOf(e), entitiesOrdered.removeFirst());
+			world.delete(e);
 		}
 
 		@Override

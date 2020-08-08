@@ -13,7 +13,7 @@ package com.artemis;
  * <p/>
  * Alternatives to edit entities.
  * <p/>
- * - {@link com.artemis.ComponentMapper} is great for concrete changes {@link ComponentMapper#create(Entity)}.
+ * - {@link com.artemis.ComponentMapper} is great for concrete changes {@link ComponentMapper#create(int)}.
  * Best choice for parameterizing pooled components.
  * - {@link com.artemis.utils.EntityBuilder} Convenient entity creation. Not useful when pooling.
  * - {@link com.artemis.EntityTransmuterFactory} Fastest but rigid way of changing entity component compositions.
@@ -75,15 +75,6 @@ public final class EntityEdit {
 		mapper.components.getData()[entityId] =  component;
 
 		return this;
-	}
-
-	/**
-	 * Get target entity of entity edits.
-	 *
-	 * @return Entity this EntityEdit operates on.
-	 */
-	public Entity getEntity() {
-		return cm.world.getEntity(entityId);
 	}
 
 	/**

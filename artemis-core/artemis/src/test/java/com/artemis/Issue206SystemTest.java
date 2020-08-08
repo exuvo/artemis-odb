@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 
 @SuppressWarnings("static-method")
 public class Issue206SystemTest {
@@ -14,18 +14,18 @@ public class Issue206SystemTest {
 		World world = new World(new WorldConfiguration()
 				.setSystem(new TestSystemAB()));
 
-		Entity e = world.createEntity();
-		e.edit().create(CompA.class);
-		e.edit().create(CompB.class);
-		e.edit().create(TestComponentC.class);
+		int e = world.create();
+		world.edit(e).create(CompA.class);
+		world.edit(e).create(CompB.class);
+		world.edit(e).create(TestComponentC.class);
 
 		world.process();
 		
-		assertSame(e.edit(), e.edit());
-		e.edit().remove(CompB.class);
+//		assertSame(world.edit(e), e.edit());
+		world.edit(e).remove(CompB.class);
 		// nota bene: in 0.7.0 and 0.7.1, chaining edit() caused
 		// the componentBits to reset
-		e.edit().remove(TestComponentC.class);
+		world.edit(e).remove(TestComponentC.class);
 
 		world.process();
 		world.process();
@@ -35,15 +35,15 @@ public class Issue206SystemTest {
 	public static class CompB extends Component {}
 	public static class TestComponentC extends Component {}
 
-	private static class TestSystemAB extends EntityProcessingSystem {
+	private static class TestSystemAB extends IteratingSystem {
 		@SuppressWarnings("unchecked")
 		public TestSystemAB() {
 			super(Aspect.all(CompA.class, CompB.class));
 		}
 
 		@Override
-		protected void process(Entity e) {
-			assertNotNull(e.getComponent(CompB.class));
+		protected void process(int e) {
+			assertNotNull(world.getMapper(CompB.class).get(e));
 		}
 	}
 }

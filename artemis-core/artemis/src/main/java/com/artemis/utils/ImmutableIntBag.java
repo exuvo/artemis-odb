@@ -4,7 +4,7 @@ package com.artemis.utils;
 /**
  * A non-modifiable intbag.
  */
-public interface ImmutableIntBag<E> {
+public interface ImmutableIntBag {
 
 
     /**

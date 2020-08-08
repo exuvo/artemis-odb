@@ -4,7 +4,7 @@ package com.artemis;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.component.ComponentX;
 import com.artemis.component.ComponentY;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 import org.junit.Test;
@@ -44,7 +44,8 @@ public class SubscriptionListenerTest {
 				.add(ComponentX.class)
 				.build();
 
-		EntityEdit ee = w.createEntity().edit();
+		int entityID = w.create();
+		EntityEdit ee = w.edit(entityID);
 		ee.create(ComponentY.class);
 
 		transmuter.transmute(ee.getEntityId());
@@ -69,8 +70,8 @@ public class SubscriptionListenerTest {
 				.add(ComponentY.class)
 				.build(w);
 
-		Entity e = w.createEntity(archetype);
-		e.edit().create(ComponentX.class);
+		int e = w.create(archetype);
+		w.edit(e).create(ComponentX.class);
 
 		w.process();
 
@@ -96,7 +97,7 @@ public class SubscriptionListenerTest {
 				.add(ComponentX.class)
 				.build();
 
-		Entity e = w.createEntity(archetype);
+		int e = w.create(archetype);
 		transmuter.transmute(e);
 
 		w.process();
@@ -132,7 +133,7 @@ public class SubscriptionListenerTest {
 		}
 	}
 
-	private static class LeSystemPetite2 extends EntityProcessingSystem {
+	private static class LeSystemPetite2 extends IteratingSystem {
 		private BitVector processedEntities = new BitVector();
 		private BitVector insertedEntities = new BitVector();
 
@@ -141,18 +142,18 @@ public class SubscriptionListenerTest {
 		}
 
 		@Override
-		public void inserted(Entity e) {
-			insertedEntities.set(e.getId());
+		public void inserted(int e) {
+			insertedEntities.set(e);
 		}
 
 		@Override
-		protected void process(Entity e) {
-			processedEntities.set(e.id);
+		protected void process(int e) {
+			processedEntities.set(e);
 		}
 
 		@Override
-		public void removed(Entity e) {
-			insertedEntities.set(e.getId(), false);
+		public void removed(int e) {
+			insertedEntities.set(e, false);
 		}
 	}
 
@@ -166,7 +167,7 @@ public class SubscriptionListenerTest {
 		@Override
 		protected void processSystem() {
 			if (!isInitialized) {
-				world.createEntity().edit().create(MyComponent.class);
+				world.edit(world.create()).create(MyComponent.class);
 				isInitialized = true;
 			}
 		}

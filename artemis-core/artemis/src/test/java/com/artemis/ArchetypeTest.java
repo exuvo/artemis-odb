@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.artemis.component.ComponentX;
 import com.artemis.component.ComponentY;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 
 public class ArchetypeTest {
 	private World world;
@@ -79,7 +79,7 @@ public class ArchetypeTest {
 				.build(world);
 
 		for (int i = 0; 256> i; i++) {
-			world.createEntity(archPooled);
+			world.create(archPooled);
 		}
 	}
 
@@ -104,16 +104,14 @@ public class ArchetypeTest {
 
 		ArchetypeBuilder builder = new ArchetypeBuilder().add(ComponentX.class);
 		Archetype archetype = builder.build(world);
-		Entity entity = world.createEntity(archetype);
-		entity.edit().create(ComponentY.class);
+		int entity = world.create(archetype);
+		world.edit(entity).create(ComponentY.class);
 		world.process();
 
-		assertNotNull(entity.getComponent(ComponentX.class));
-		assertNotNull(entity.getComponent(ComponentY.class));
 		assertNotNull(xMapper.get(entity));
 		assertNotNull(yMapper.get(entity));
 		//This is false, the bag only contains SpatialModifierComponent
-		assertEquals(2, entity.getComponents(new Bag<Component>()).size());
+		assertEquals(2, world.getComponentManager().getComponentsFor(entity, new Bag<Component>()).size());
 	}
 
 	private void archetypeEntity(Archetype arch, int s) {
@@ -122,7 +120,7 @@ public class ArchetypeTest {
 		}
 	}
 
-	private static class Es1 extends EntityProcessingSystem {
+	private static class Es1 extends IteratingSystem {
 
 		private ComponentMapper<ComponentX> componentXMapper;
 
@@ -132,12 +130,12 @@ public class ArchetypeTest {
 		}
 
 		@Override
-		protected void process(Entity e) {
+		protected void process(int e) {
 			assertNotNull(componentXMapper.get(e));
 		}
 	}
 
-	private static class Es2 extends EntityProcessingSystem {
+	private static class Es2 extends IteratingSystem {
 
 		private ComponentMapper<ComponentX> componentXMapper;
 
@@ -147,7 +145,7 @@ public class ArchetypeTest {
 		}
 
 		@Override
-		protected void process(Entity e) {
+		protected void process(int e) {
 			assertNotNull(componentXMapper.get(e));
 		}
 	}

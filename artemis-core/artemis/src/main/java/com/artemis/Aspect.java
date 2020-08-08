@@ -79,14 +79,8 @@ public class Aspect {
 	}
 
 	/**
-	 * Returns whether this Aspect would accept the given Entity.
-	 */
-	public boolean isInterested(Entity e){
-		return isInterested(e.getComponentBits());
-	}
-
-	/**
 	 * Returns whether this Aspect would accept the given set.
+	 * Get componentBits from world.getComponentManager().componentBits(entityID)
 	 */
 	public boolean isInterested(BitVector componentBits){
 		// Check if the entity possesses ALL of the components defined in the aspect.

@@ -35,84 +35,52 @@ public abstract class BaseComponentMapper<A extends Component> {
 	 * Only exception are components marked with {@link DelayedComponentRemoval}, when calling
 	 * this method from within a subscription listener.
 	 *
-	 * @param e the entity that should possess the component
+	 * @param entityID the entity that should possess the component
 	 * @return the instance of the component.
 	 * @throws ArrayIndexOutOfBoundsException if the component was removed or never existed
 	 */
-	public A get(Entity e) {
-		return get(e.getId());
-	}
-
-	/**
-	 * Fast but unsafe retrieval of a component for this entity.
-	 *
-	 * This method trades performance for safety.
-	 *
-	 * User is expected to avoid calling this method on recently (in same system) removed components
-	 * or invalid entity ids. Might return null, throw {@link ArrayIndexOutOfBoundsException}
-	 * or a partially recycled component if called on in-system removed components.
-	 *
-	 * Only exception are components marked with {@link DelayedComponentRemoval}, when calling
-	 * this method from within a subscription listener.
-	 *
-	 * @param entityId the entity that should possess the component
-	 * @return the instance of the component.
-	 * @throws ArrayIndexOutOfBoundsException if the component was removed or never existed
-	 */
-	public abstract A get(int entityId);
+	public abstract A get(int entityID);
 
 	/**
 	 * Checks if the entity has this type of component.
 	 *
-	 * @param e the entity to check
+	 * @param entityID the entity to check
 	 * @return true if the entity has this component type, false if it doesn't
 	 * @throws ArrayIndexOutOfBoundsException if the component was removed or never existed
 	 */
-	public boolean has(Entity e) {
-		return has(e.getId());
-	}
-
-	public abstract boolean has(int entityId);
-
-	/**
-	 * Create component for this entity.
-	 * Will avoid creation if component preexists.
-	 *
-	 * @param entity the entity that should possess the component
-	 * @return the instance of the component.
-	 */
-	public A create(Entity entity) {
-		return create(entity.getId());
-	}
-
-	public abstract void remove(int entityId);
+	public abstract boolean has(int entityID);
 
 	/**
 	 * Remove component from entity.
 	 * Does nothing if already removed.
 	 *
-	 * @param entity entity to remove.
+	 * @param entityID to remove.
 	 */
-	public void remove(Entity entity) {
-		remove(entity.getId());
-	}
+	public abstract void remove(int entityID);
 
-	protected abstract void internalRemove(int entityId);
+	protected abstract void internalRemove(int entityID);
+	
+	/**
+	 * Create component for this entity.
+	 * Will avoid creation if component preexists.
+	 *
+	 * @param entityID the entity that should possess the component
+	 * @return the instance of the component.
+	 */
+	public abstract A create(int entityID);
 
-	public abstract A create(int entityId);
-
-	public abstract A internalCreate(int entityId);
+	public abstract A internalCreate(int entityID);
 
 	/**
 	 * Fast and safe retrieval of a component for this entity.
 	 * If the entity does not have this component then fallback is returned.
 	 *
-	 * @param entityId Entity that should possess the component
+	 * @param entityID Entity that should possess the component
 	 * @param fallback fallback component to return, or {@code null} to return null.
 	 * @return the instance of the component
 	 */
-	public A getSafe(int entityId, A fallback) {
-		final A c = get(entityId);
+	public A getSafe(int entityID, A fallback) {
+		final A c = get(entityID);
 		return (c != null) ? c : fallback;
 	}
 
@@ -121,42 +89,17 @@ public abstract class BaseComponentMapper<A extends Component> {
 	 *
 	 * Does nothing if already removed or created respectively.
 	 *
-	 * @param entityId Entity id to change.
+	 * @param entityID Entity id to change.
 	 * @param value {@code true} to create component (if missing), {@code false} to remove (if exists).
 	 * @return the instance of the component, or {@code null} if removed.
 	 */
-	public A set(int entityId, boolean value) {
+	public A set(int entityID, boolean value) {
 		if ( value ) {
-			return create(entityId);
+			return create(entityID);
 		} else {
-			remove(entityId);
+			remove(entityID);
 			return null;
 		}
-	}
-
-	/**
-	 * Create or remove a component from an entity.
-	 *
-	 * Does nothing if already removed or created respectively.
-	 *
-	 * @param entity Entity to change.
-	 * @param value {@code true} to create component (if missing), {@code false} to remove (if exists).
-	 * @return the instance of the component, or {@code null} if removed.
-	 */
-	public A set(Entity entity, boolean value) {
-		return set(entity.getId(), value);
-	}
-
-	/**
-	 * Fast and safe retrieval of a component for this entity.
-	 * If the entity does not have this component then fallback is returned.
-	 *
-	 * @param entity   Entity that should possess the component
-	 * @param fallback fallback component to return, or {@code null} to return null.
-	 * @return the instance of the component
-	 */
-	public A getSafe(Entity entity, A fallback) {
-		return getSafe(entity.getId(), fallback);
 	}
 
 	/**

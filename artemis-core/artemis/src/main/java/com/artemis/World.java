@@ -234,16 +234,6 @@ public class World {
 
 	/**
 	 * Delete the entity from the world.
-	 * @param e
-	 * 		the entity to delete
-	 * @see #delete(int) recommended alternative.
-	 */
-	public void deleteEntity(Entity e) {
-		delete(e.id);
-	}
-
-	/**
-	 * Delete the entity from the world.
 	 *
 	 * The entity is considered to be in a final state once invoked;
 	 * adding or removing components from an entity scheduled for
@@ -254,19 +244,6 @@ public class World {
 	 */
 	public void delete(int entityId) {
 		batchProcessor.delete(entityId);
-	}
-
-	/**
-	 * Create and return a new or reused entity instance. Entity is
-	 * automatically added to the world.
-	 *
-	 * @return entity
-	 * @see #create() recommended alternative.
-	 */
-	public Entity createEntity() {
-		Entity e = em.createEntityInstance();
-		batchProcessor.changed.unsafeSet(e.getId());
-		return e;
 	}
 
 	/**
@@ -282,42 +259,10 @@ public class World {
 	}
 
 	/**
-	 * Create and return an {@link Entity} wrapping a new or reused entity instance.
+	 * Create and return an entityID.
 	 * Entity is automatically added to the world.
 	 *
-	 * Use {@link Entity#edit()} to set up your newly created entity.
-	 *
 	 * You can also create entities using:
-	 * <ul>
-	 *   <li>{@link com.artemis.utils.EntityBuilder} Convenient entity creation. Not useful when pooling.</li>
-	 *   <li>{@link com.artemis.Archetype} Fastest, low level, no parameterized components.</li>
-	 *   <li><a href="https://github.com/junkdog/artemis-odb/wiki/Serialization">Serialization</a>,
-	 *        with a simple prefab-like class to parameterize the entities.</li>
-	 * </ul>
-	 *
-	 * @see #create() recommended alternative.
-	 * @return entity
-	 */
-	public Entity createEntity(Archetype archetype) {
-		Entity e = em.createEntityInstance();
-
-		int id = e.getId();
-		archetype.transmuter.perform(id);
-		cm.setIdentity(e.id, archetype.compositionId);
-
-		batchProcessor.changed.unsafeSet(id);
-
-		return e;
-	}
-
-	/**
-	 * Create and return an {@link Entity} wrapping a new or reused entity instance.
-	 * Entity is automatically added to the world.
-	 *
-	 * Use {@link Entity#edit()} to set up your newly created entity.
-	 *
-	 * You can also create entities using:
-	 * - {@link com.artemis.utils.EntityBuilder} Convenient entity creation. Not useful when pooling.
 	 * - {@link com.artemis.Archetype} Fastest, low level, no parameterized components.
 	 *
 	 * @return assigned entity id
@@ -331,21 +276,6 @@ public class World {
 		batchProcessor.changed.unsafeSet(entityId);
 
 		return entityId;
-	}
-
-	/**
-	 * Get entity with the specified id.
-	 *
-	 * Resolves entity id to the unique entity instance. <em>This method may
-	 * return an entity even if it isn't active in the world.</em> Make sure to
-	 * not retain id's of deleted entities.
-	 *
-	 * @param entityId
-	 * 		the entities id
-	 * @return the specific entity
-	 */
-	public Entity getEntity(int entityId) {
-		return em.getEntity(entityId);
 	}
 
 	/**

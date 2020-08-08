@@ -56,12 +56,12 @@ public class DelayedComponentRemovalTest {
         boolean gettableAtRemoval = false;
         private boolean hasAtRemoval = false;
         ComponentMapper<NotExplicitlyDelayedComponent> m;
-        private Entity e;
+        private int e;
 
         @Override
         protected void initialize() {
             super.initialize(); // setup world
-            e = world.createEntity();
+            e = world.create();
             m.create(e);
         }
 

@@ -17,40 +17,23 @@ import static com.artemis.Aspect.all;
  */
 @SkipWire
 public class EntityManager extends BaseSystem {
-	/** Contains all entities in the manager. */
-	final Bag<Entity> entities;
 	private final BitVector recycled = new BitVector();
 	private final IntDeque limbo = new IntDeque();
-	private int nextId;
+	private int maxSize;
+	private int nextID;
+	protected int maxUsedID = -1;
 	private Bag<BitVector> entityBitVectors = new Bag<BitVector>(BitVector.class);
 
-	/**
-	 * Creates a new EntityManager Instance.
-	 */
 	protected EntityManager(int initialContainerSize) {
-		entities = new Bag<Entity>(initialContainerSize);
+		maxSize = initialContainerSize;
 		registerEntityStore(recycled);
 	}
 
 	@Override
 	protected void processSystem() {}
 
-	/**
-	 * Create a new entity.
-	 *
-	 * @return a new entity
-	 */
-	protected Entity createEntityInstance() {
-		return obtain();
-	}
-
-	/**
-	 * Create a new entity.
-	 *
-	 * @return a new entity id
-	 */
 	protected int create() {
-		return obtain().id;
+		return obtain();
 	}
 
 	void clean(IntBag pendingDeletion) {
@@ -83,22 +66,8 @@ public class EntityManager extends BaseSystem {
 	}
 
 	public void registerEntityStore(BitVector bv) {
-		bv.ensureCapacity(entities.getCapacity());
+		bv.ensureCapacity(maxSize);
 		entityBitVectors.add(bv);
-	}
-
-	/**
-	 * Resolves entity id to the unique entity instance. <em>This method may
-	 * return an entity even if it isn't active in the world, </em> use
-	 * {@link #isActive(int)} if you need to check whether the entity is active or not.
-	 * 
-	 * @param entityId
-	 *			the entities id
-	 *
-	 * @return the entity
-	 */
-	protected Entity getEntity(int entityId) {
-		return entities.get(entityId);
 	}
 
 	/**
@@ -112,64 +81,66 @@ public class EntityManager extends BaseSystem {
 	 *
 	 */
 	public boolean reset() {
-		int count = world.getAspectSubscriptionManager()
-			.get(all())
-			.getActiveEntityIds()
-			.cardinality();
+		int count = world.getAspectSubscriptionManager().get(all()).getEntityCount();
 
 		if (count > 0)
 			return false;
 
 		limbo.clear();
 		recycled.clear();
-		entities.clear();
 
-		nextId = 0;
+		nextID = 0;
 
 		return true;
+	}
+	
+	public void resetNextID() {
+		int count = world.getAspectSubscriptionManager().get(all()).getEntityCount();
+		
+		if (count > 0) {
+			throw new IllegalStateException("Live entity count is " + count);
+		}
+		
+		nextID = 0;
+		maxUsedID = 0;
 	}
 
 	/**
 	 * Instantiates an Entity without registering it into the world.
 	 * @param id The ID to be set on the Entity
 	 */
-	private Entity createEntity(int id) {
-		Entity e = new Entity(world, id);
-		if (e.id >= entities.getCapacity()) {
+	private int createEntity() {
+		if (nextID >= maxSize) {
 			growEntityStores();
 		}
+		
+		maxUsedID = nextID;
 
-		// can't use unsafe set, as we need to track highest id
-		// for faster iteration when syncing up new subscriptions
-		// in ComponentManager#synchronize
-		entities.set(e.id, e);
-
-		return e;
+		return nextID++;
 	}
 
 	private void growEntityStores() {
-		int newSize = 2 * entities.getCapacity();
-		entities.ensureCapacity(newSize);
+		maxSize = 2 * maxSize;
 		ComponentManager cm = world.getComponentManager();
-		cm.ensureCapacity(newSize);
+		cm.ensureCapacity(maxSize);
 
 		for (int i = 0, s = entityBitVectors.size(); s > i; i++) {
-			entityBitVectors.get(i).ensureCapacity(newSize);
+			entityBitVectors.get(i).ensureCapacity(maxSize);
 		}
 	}
 
-	private Entity obtain() {
+	private int obtain() {
 		if (limbo.isEmpty()) {
-			return createEntity(nextId++);
+			return createEntity();
 		} else {
 			int id = limbo.popFirst();
 			recycled.unsafeClear(id);
-			return entities.get(id);
+			return id;
 		}
 	}
 
-	private void free(int entityId) {
-		limbo.add(entityId);
-		recycled.unsafeSet(entityId);
+	private void free(int entityID) {
+		limbo.add(entityID);
+		recycled.unsafeSet(entityID);
 	}
 }

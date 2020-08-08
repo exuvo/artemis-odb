@@ -6,11 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 
 /**
- * When optimizing an {@link EntityProcessingSystem}, don't reduce the visibility
- * of {@link EntityProcessingSystem#process()}.
+ * When optimizing an {@link IteratingSystem}, don't reduce the visibility
+ * of {@link IteratingSystem#process()}.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)

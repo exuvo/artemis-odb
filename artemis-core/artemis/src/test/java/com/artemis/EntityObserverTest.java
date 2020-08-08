@@ -11,20 +11,28 @@ public class EntityObserverTest {
 	@Test
 	public void ensure_systems_with_entityobserver_receive_events() {
 
-		class TestSystem extends Manager {
+		class TestSystem extends BaseEntitySystem {
 
 			public int added=0;
+			
+			public TestSystem() {
+				super(Aspect.all());
+			}
 
 			@Override
-			public void added(Entity e) {
+			public void inserted(int e) {
 				added++;
+			}
+			
+			@Override
+			protected void processSystem() {
+			
 			}
 		}
 
 		TestSystem system = new TestSystem();
-		World world = new World(new WorldConfiguration()
-				.setSystem(system));
-		world.createEntity();
+		World world = new World(new WorldConfiguration().setSystem(system));
+		world.create();
 		world.process();
 
 		Assert.assertEquals(1,system.added);
@@ -41,7 +49,7 @@ public class EntityObserverTest {
 		TestSystem system = new TestSystem();
 		World world = new World(new WorldConfiguration()
 				.setSystem(system));
-		world.createEntity();
+		world.create();
 		world.process();
 	}
 }

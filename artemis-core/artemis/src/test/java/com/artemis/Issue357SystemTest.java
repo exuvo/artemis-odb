@@ -1,6 +1,6 @@
 package com.artemis;
 
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -13,10 +13,10 @@ public class Issue357SystemTest {
 	public void test_two_systems_in_world_delete_during_process() {
 		World world = new World(new WorldConfiguration().setSystem(TestSystemWithDelete.class)
 				.setSystem(AnyOldeBaseSystem.class));
-		world.createEntity().edit().create(TestComponent.class);
+		world.edit(world.create()).create(TestComponent.class);
 		world.process();
 
-		world.createEntity().edit().create(TestComponent.class);
+		world.edit(world.create()).create(TestComponent.class);
 		world.process(); //This test fails in 0.13.0!
 
 	}
@@ -24,10 +24,10 @@ public class Issue357SystemTest {
 	@Test
 	public void test_one_system_in_world_delete_during_process() {
 		World world = new World(new WorldConfiguration().setSystem(TestSystemWithDelete.class));
-		world.createEntity().edit().create(TestComponent.class);
+		world.edit(world.create()).create(TestComponent.class);
 		world.process();
 
-		world.createEntity().edit().create(TestComponent.class);
+		world.edit(world.create()).create(TestComponent.class);
 		world.process();
 		//This test is ok i 0.13.0
 	}
@@ -36,15 +36,15 @@ public class Issue357SystemTest {
 	public void test_two_systems_in_world_delete_after_process() {
 		World world = new World(new WorldConfiguration().setSystem(TestSystemWithoutDelete.class)
 				.setSystem(AnyOldeBaseSystem.class));
-		Entity entity = world.createEntity();
-		entity.edit().create(TestComponent.class);
+		int entity = world.create();
+		world.edit(entity).create(TestComponent.class);
 		world.process();
-		entity.deleteFromWorld();
+		world.delete(entity);
 
-		Entity entity2 = world.createEntity();
-		entity2.edit().create(TestComponent.class);
+		int entity2 = world.create();
+		world.edit(entity2).create(TestComponent.class);
 		world.process();
-		entity2.deleteFromWorld();
+		world.delete(entity2);
 		world.process();
 		//This test is ok i 0.13.0
 	}
@@ -55,17 +55,17 @@ public class Issue357SystemTest {
 			.setSystem(TestSystemWithoutDelete.class)
 			.setSystem(AnyOldeBaseSystem.class));
 
-		Entity entity = world.createEntity();
-		entity.edit().create(TestComponent.class);
-		entity.deleteFromWorld();
+		int entity = world.create();
+		world.edit(entity).create(TestComponent.class);
+		world.delete(entity);
 		world.process();
-		world.createEntity().edit().create(TestComponent.class);
-		entity.deleteFromWorld();
+		world.edit(world.create()).create(TestComponent.class);
+		world.delete(entity);
 		world.process();
 		//This test is ok i 0.13.0
 	}
 
-	public static class TestSystemWithDelete extends EntityProcessingSystem {
+	public static class TestSystemWithDelete extends IteratingSystem {
 		private ComponentMapper<TestComponent> mapper;
 
 		public TestSystemWithDelete() {
@@ -73,14 +73,14 @@ public class Issue357SystemTest {
 		}
 
 		@Override
-		protected void process(Entity entity) {
+		protected void process(int entity) {
 			TestComponent testComponent = mapper.get(entity);
-			assertNotNull("Entity with id <" + entity.getId() + "> has null component", testComponent);
-			entity.deleteFromWorld();
+			assertNotNull("int with id <" + entity + "> has null component", testComponent);
+			world.delete(entity);
 		}
 	}
 
-	public static class TestSystemWithoutDelete extends EntityProcessingSystem {
+	public static class TestSystemWithoutDelete extends IteratingSystem {
 		private ComponentMapper<TestComponent> mapper;
 
 		public TestSystemWithoutDelete() {
@@ -88,9 +88,9 @@ public class Issue357SystemTest {
 		}
 
 		@Override
-		protected void process(Entity entity) {
+		protected void process(int entity) {
 			TestComponent testComponent = mapper.get(entity);
-			assertNotNull("Entity with id <" + entity.getId() + "> has null component", testComponent);
+			assertNotNull("int with id <" + entity + "> has null component", testComponent);
 		}
 	}
 

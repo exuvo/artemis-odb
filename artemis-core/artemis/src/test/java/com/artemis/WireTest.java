@@ -8,8 +8,7 @@ import org.junit.Test;
 import com.artemis.annotations.Wire;
 import com.artemis.component.ComponentX;
 import com.artemis.component.ComponentY;
-import com.artemis.managers.TagManager;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IteratingSystem;
 import com.artemis.systems.VoidEntitySystem;
 
 import static org.junit.Assert.*;
@@ -25,7 +24,7 @@ public class WireTest {
     private MappedManagerAll mappedManagerAll;
     private ExtendedManager extendedManager;
 
-    private Entity entity;
+    private int entity;
 
     @Before
     public void init() {
@@ -45,8 +44,8 @@ public class WireTest {
                 .setSystem(mappedSystemAll)
                 .setSystem(extendedSystem));
 
-        entity = world.createEntity();
-        EntityEdit edit = entity.edit();
+        entity = world.create();
+        EntityEdit edit = world.edit(entity);
         edit.create(ComponentX.class);
         edit.create(ComponentY.class);
 
@@ -387,7 +386,7 @@ public class WireTest {
         World worldSet;
     }
 
-    private static class MappedSystemAll extends EntityProcessingSystem {
+    private static class MappedSystemAll extends IteratingSystem {
         private ComponentMapper<ComponentX> x;
         private ComponentMapper<ComponentY> y;
         private TagManager tagManager;
@@ -399,11 +398,11 @@ public class WireTest {
         }
 
         @Override
-        protected void process(Entity e) {
+        protected void process(int e) {
         }
     }
 
-    private static class MappedSystem extends EntityProcessingSystem {
+    private static class MappedSystem extends IteratingSystem {
         @Wire
         private ComponentMapper<ComponentX> x;
         @Wire
@@ -419,18 +418,23 @@ public class WireTest {
         }
 
         @Override
-        protected void process(Entity e) {
+        protected void process(int e) {
         }
     }
 
     private static class ExtendedStaticManager extends ManagerWithStaticField {
     }
 
-    private static class ManagerWithStaticField extends Manager {
+    private static class ManagerWithStaticField extends BaseSystem {
         static ComponentMapper<ComponentX> mapper;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
-    private static class MappedManager extends Manager {
+    private static class MappedManager extends BaseSystem {
         @Wire
         private ComponentMapper<ComponentX> x;
         @Wire
@@ -439,17 +443,32 @@ public class WireTest {
         private MappedSystem mappedSystem;
         @Wire
         private TagManager tagManager;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
-    private static class MappedManagerAll extends Manager {
+    private static class MappedManagerAll extends BaseSystem {
         private ComponentMapper<ComponentX> x;
         private ComponentMapper<ComponentY> y;
         private MappedSystem mappedSystem;
         private TagManager tagManager;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
-    private static class BaseManager extends Manager {
+    private static class BaseManager extends BaseSystem {
         protected ComponentMapper<ComponentX> x;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
     private static class ExtendedManager extends BaseManager {
@@ -491,23 +510,46 @@ public class WireTest {
         }
     }
 
-    private static class FailingNpeManager extends Manager {
+    private static class FailingNpeManager extends BaseSystem {
         @SuppressWarnings("unused")
         private FailingSystem fail;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
-    private static class CustomInjectedManager extends Manager {
+    private static class CustomInjectedManager extends BaseSystem {
         @Wire
         InjectMe injectMe;
         InjectMe nullInjectMe;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
-    private static class CustomNamedInjectedManager extends Manager {
+    private static class CustomNamedInjectedManager extends BaseSystem {
         @Wire(name = "hi")
         InjectMe injectMe;
         InjectMe nullInjectMe;
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 
     public static class InjectMe {
+    }
+    
+    public static class TagManager extends BaseSystem {
+    
+        @Override
+        protected void processSystem() {
+        
+        }
     }
 }
