@@ -68,7 +68,7 @@ public final class EntityTransmuter {
 	}
 
 	private boolean isValid(int entityId) {
-		if (!em.isActive(entityId))
+		if (em.isDeleted(entityId))
 			throw new RuntimeException("Issued transmute on deleted " + entityId);
 
 		if (batchProcessor.isDeleted(entityId))

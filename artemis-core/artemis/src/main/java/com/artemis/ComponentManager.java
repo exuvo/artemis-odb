@@ -52,12 +52,12 @@ public class ComponentManager extends BaseSystem {
 	protected <T extends Component> T create(int owner, Class<T> componentClass) {
 		return getMapper(componentClass).create(owner);
 	}
-
+	
 	protected <T extends Component> ComponentMapper<T> getMapper(Class<T> mapper) {
 		ComponentType type = typeFactory.getTypeFor(mapper);
 		return mappers.get(type.getIndex());
 	}
-
+	
 	void registerComponentType(ComponentType ct, int capacity) {
 		int index = ct.getIndex();
 		ComponentMapper mapper = new ComponentMapper(ct.getType(), world);

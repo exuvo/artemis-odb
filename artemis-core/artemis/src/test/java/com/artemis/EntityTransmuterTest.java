@@ -52,7 +52,7 @@ public class EntityTransmuterTest {
 		transmuter3.transmute(id);
 
 		world.process();
-		assertFalse(em.isActive(id));
+		assertTrue(em.isDeleted(id));
 	}
 
 	@Test

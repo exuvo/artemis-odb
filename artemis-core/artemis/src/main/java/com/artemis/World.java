@@ -72,17 +72,10 @@ public class World {
 	public World(WorldConfiguration configuration) {
 		partition = new WorldSegment(configuration);
 		systemsBag = configuration.systems;
-
-		final ComponentManager lcm =
-			(ComponentManager) systemsBag.get(COMPONENT_MANAGER_IDX);
-		final EntityManager lem =
-			(EntityManager) systemsBag.get(ENTITY_MANAGER_IDX);
-		final AspectSubscriptionManager lasm =
-			(AspectSubscriptionManager) systemsBag.get(ASPECT_SUBSCRIPTION_MANAGER_IDX);
-
-		cm = lcm == null ? new ComponentManager(configuration.expectedEntityCount()) : lcm;
-		em = lem == null ? new EntityManager(configuration.expectedEntityCount()) : lem;
-		asm = lasm == null ? new AspectSubscriptionManager() : lasm;
+		
+		cm = new ComponentManager(configuration.expectedEntityCount());
+		em = new EntityManager(configuration.expectedEntityCount());
+		asm = new AspectSubscriptionManager();
 		batchProcessor = new BatchChangeProcessor(this);
 		alwaysDelayComponentRemoval = configuration.isAlwaysDelayComponentRemoval();
 
@@ -171,7 +164,7 @@ public class World {
 	 * @param entityId entity to fetch editor for.
 	 */
 	public EntityEdit edit(int entityId) {
-		if (!em.isActive(entityId))
+		if (em.isDeleted(entityId))
 			throw new RuntimeException("Issued edit on deleted " + entityId);
 
 		return batchProcessor.obtainEditor(entityId);

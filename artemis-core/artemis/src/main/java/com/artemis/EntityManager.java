@@ -53,16 +53,20 @@ public class EntityManager extends BaseSystem {
 	/**
 	 * Check if this entity is active.
 	 * <p>
-	 * Active means the entity is being actively processed.
+	 * Active means the entity has been created and is not deleted.
 	 * </p>
 	 * 
-	 * @param entityId
+	 * @param entityID
 	 *			the entities id
 	 *
 	 * @return true if active, false if not
 	 */
-	public boolean isActive(int entityId) {
-		return !recycled.unsafeGet(entityId);
+	public boolean isActive(int entityID) {
+		return entityID <= maxUsedID && !recycled.unsafeGet(entityID);
+	}
+	
+	public boolean isDeleted(int entityID) {
+		return recycled.unsafeGet(entityID);
 	}
 
 	public void registerEntityStore(BitVector bv) {
@@ -90,27 +94,40 @@ public class EntityManager extends BaseSystem {
 		recycled.clear();
 
 		nextID = 0;
+		maxUsedID = -1;
 
 		return true;
 	}
 	
-	public void resetNextID() {
-		int count = world.getAspectSubscriptionManager().get(all()).getEntityCount();
-		
-		if (count > 0) {
-			throw new IllegalStateException("Live entity count is " + count);
+	public void setNextID(int nextID) {
+		if (isActive(nextID)) {
+			throw new IllegalStateException("entityID " + nextID + " is already in use");
 		}
 		
-		nextID = 0;
-		maxUsedID = 0;
+		this.nextID = nextID;
+		limbo.clear();
+		recycled.unsafeClear(nextID);
+		
+		if (nextID >= maxSize) {
+			maxSize = getNextPowerOfTwo(nextID);
+			growEntityStores();
+		}
+	}
+	
+	int getNextPowerOfTwo(int value) {
+		int highestOneBit = Integer.highestOneBit(value);
+		if (value == highestOneBit) {
+			return value;
+		}
+		return highestOneBit << 1;
 	}
 
 	/**
 	 * Instantiates an Entity without registering it into the world.
-	 * @param id The ID to be set on the Entity
 	 */
 	private int createEntity() {
 		if (nextID >= maxSize) {
+			maxSize = 2 * maxSize;
 			growEntityStores();
 		}
 		
@@ -120,7 +137,6 @@ public class EntityManager extends BaseSystem {
 	}
 
 	private void growEntityStores() {
-		maxSize = 2 * maxSize;
 		ComponentManager cm = world.getComponentManager();
 		cm.ensureCapacity(maxSize);
 
