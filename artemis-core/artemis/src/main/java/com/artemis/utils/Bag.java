@@ -51,10 +51,16 @@ public class Bag<E> implements ImmutableBag<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Bag(int capacity) {
+		if (capacity <= 8) {
+			capacity = 8;
+		}
 		data = (E[])ArrayReflection.newInstance(Object.class, capacity);
 	}
 
 	public Bag(Class<E> type, int capacity) {
+		if (capacity <= 8) {
+			capacity = 8;
+		}
 		data = (E[])ArrayReflection.newInstance(type, capacity);
 	}
 

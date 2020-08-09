@@ -207,6 +207,10 @@ public class World {
 	public AspectSubscriptionManager getAspectSubscriptionManager() {
 		return asm;
 	}
+	
+	public BatchChangeProcessor getBatchProcessor() {
+		return batchProcessor;
+	}
 
 	/**
 	 * Time since last game loop.

@@ -5,11 +5,11 @@ import com.artemis.utils.IntBag;
 
 import com.artemis.utils.BitVector;
 
-final class BatchChangeProcessor {
+public final class BatchChangeProcessor {
 	private final World world;
 	private final AspectSubscriptionManager asm;
 
-	final BitVector changed = new BitVector();
+	public final BitVector changed = new BitVector();
 	final WildBag<ComponentRemover> purgatories = new WildBag<ComponentRemover>(ComponentRemover.class);
 
 	// marked for deletion, will be removed for entity subscriptions asap

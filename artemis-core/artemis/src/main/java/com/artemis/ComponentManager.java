@@ -155,7 +155,7 @@ public class ComponentManager extends BaseSystem {
 	}
 
 	/** Get component composition of entity. */
-	private Bag<ComponentMapper> componentMappers(int entityId) {
+	public Bag<ComponentMapper> componentMappers(int entityId) {
 		int identityIndex = entityToIdentity.get(entityId);
 		return identityResolver.compositionMappers.get(identityIndex);
 	}
