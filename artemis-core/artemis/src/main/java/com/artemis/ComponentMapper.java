@@ -20,11 +20,11 @@ public class ComponentMapper<A extends Component> extends BaseComponentMapper<A>
      * Holds all components of given type in the world.
      */
     final Bag<A> components;
-
-    private final EntityTransmuter createTransmuter;
-    private final EntityTransmuter removeTransmuter;
-    private final ComponentPool pool;
-    private final ComponentRemover<A> purgatory;
+    
+    protected final EntityTransmuter createTransmuter;
+    protected final EntityTransmuter removeTransmuter;
+    protected final ComponentPool pool;
+    protected final ComponentRemover<A> purgatory;
 
 
     @SuppressWarnings("unchecked")
@@ -143,7 +143,7 @@ public class ComponentMapper<A extends Component> extends BaseComponentMapper<A>
         return component;
     }
 
-    private A createNew() {
+    protected A createNew() {
         return (A) ((pool != null)
                 ? pool.obtain()
                 : ComponentManager.newInstance(type.getType()));

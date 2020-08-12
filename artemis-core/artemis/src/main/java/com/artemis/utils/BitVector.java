@@ -217,30 +217,44 @@ public class BitVector {
 
 		return Math.min(fromIndex, words.length << 6);
 	}
+	
+	public void set(BitVector other) {
+//		int commonWords = Math.min(words.length, other.words.length);
+		for (int i = 0; words.length > i; i++) {
+			words[i] = other.words[i];
+		}
+		
+//		if (commonWords < other.words.length) {
+//			checkCapacity(other.words.length);
+//			for (int i = commonWords, s = other.words.length; s > i; i++) {
+//				words[i] = 0;
+//			}
+//		}
+	}
 
 	/** Performs a logical <b>AND</b> of this target bit set with the argument bit set. This bit set is modified so that each bit in
 	 * it has the value true if and only if it both initially had the value true and the corresponding bit in the bit set argument
 	 * also had the value true.
 	 * @param other a bit set */
 	public void and(BitVector other) {
-		int commonWords = Math.min(words.length, other.words.length);
-		for (int i = 0; commonWords > i; i++) {
+//		int commonWords = Math.min(words.length, other.words.length);
+		for (int i = 0; words.length > i; i++) {
 			words[i] &= other.words[i];
 		}
 
-		if (words.length > commonWords) {
-			for (int i = commonWords, s = words.length; s > i; i++) {
-				words[i] = 0L;
-			}
-		}
+//		if (words.length > commonWords) {
+//			for (int i = commonWords, s = words.length; s > i; i++) {
+//				words[i] = 0L;
+//			}
+//		}
 	}
 
 	/** Clears all of the bits in this bit set whose corresponding bit is set in the specified bit set.
 	 *
 	 * @param other a bit set */
 	public void andNot(BitVector other) {
-		int commonWords = Math.min(words.length, other.words.length);
-		for (int i = 0; commonWords > i; i++) {
+//		int commonWords = Math.min(words.length, other.words.length);
+		for (int i = 0; words.length > i; i++) {
 			words[i] &= ~other.words[i];
 		}
 	}
@@ -250,17 +264,17 @@ public class BitVector {
 	 * value true.
 	 * @param other a bit set */
 	public void or(BitVector other) {
-		int commonWords = Math.min(words.length, other.words.length);
-		for (int i = 0; commonWords > i; i++) {
+//		int commonWords = Math.min(words.length, other.words.length);
+		for (int i = 0; words.length > i; i++) {
 			words[i] |= other.words[i];
 		}
 
-		if (commonWords < other.words.length) {
-			checkCapacity(other.words.length);
-			for (int i = commonWords, s = other.words.length; s > i; i++) {
-				words[i] = other.words[i];
-			}
-		}
+//		if (commonWords < other.words.length) {
+//			checkCapacity(other.words.length);
+//			for (int i = commonWords, s = other.words.length; s > i; i++) {
+//				words[i] = other.words[i];
+//			}
+//		}
 	}
 
 	/** Performs a logical <b>XOR</b> of this bit set with the bit set argument. This bit set is modified so that a bit in it has
@@ -271,18 +285,18 @@ public class BitVector {
 	 * </ul>
 	 * @param other */
 	public void xor(BitVector other) {
-		int commonWords = Math.min(words.length, other.words.length);
+//		int commonWords = Math.min(words.length, other.words.length);
 
-		for (int i = 0; commonWords > i; i++) {
+		for (int i = 0; words.length > i; i++) {
 			words[i] ^= other.words[i];
 		}
 
-		if (commonWords < other.words.length) {
-			checkCapacity(other.words.length);
-			for (int i = commonWords, s = other.words.length; s > i; i++) {
-				words[i] = other.words[i];
-			}
-		}
+//		if (commonWords < other.words.length) {
+//			checkCapacity(other.words.length);
+//			for (int i = commonWords, s = other.words.length; s > i; i++) {
+//				words[i] = other.words[i];
+//			}
+//		}
 	}
 
 	/** Returns true if the specified BitVector has any bits set to true that are also set to true in this BitVector.
@@ -329,8 +343,9 @@ public class BitVector {
 
 	public int cardinality() {
 		int count = 0;
-		for (int i = 0; i < words.length; i++)
+		for (int i = 0; i < words.length; i++) {
 			count += Long.bitCount(words[i]);
+		}
 
 		return count;
 	}

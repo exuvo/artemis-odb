@@ -26,9 +26,9 @@ public class ComponentManager extends BaseSystem {
 	static final int NO_COMPONENTS = 0;
 
 	/** Collects all Entites marked for deletion from this ComponentManager. */
-	private Bag<ComponentMapper> mappers = new Bag(ComponentMapper.class);
-
-	private final ComponentIdentityResolver identityResolver = new ComponentIdentityResolver();
+	protected Bag<ComponentMapper> mappers = new Bag(ComponentMapper.class);
+	
+	protected final ComponentIdentityResolver identityResolver = new ComponentIdentityResolver();
 	final ShortBag entityToIdentity;
 	protected final ComponentTypeFactory typeFactory;
 
@@ -53,8 +53,8 @@ public class ComponentManager extends BaseSystem {
 		return getMapper(componentClass).create(owner);
 	}
 	
-	protected <T extends Component> ComponentMapper<T> getMapper(Class<T> mapper) {
-		ComponentType type = typeFactory.getTypeFor(mapper);
+	protected <T extends Component> ComponentMapper<T> getMapper(Class<T> component) {
+		ComponentType type = typeFactory.getTypeFor(component);
 		return mappers.get(type.getIndex());
 	}
 	

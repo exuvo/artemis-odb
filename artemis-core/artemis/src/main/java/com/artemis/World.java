@@ -72,10 +72,14 @@ public class World {
 	public World(WorldConfiguration configuration) {
 		partition = new WorldSegment(configuration);
 		systemsBag = configuration.systems;
-		
-		cm = new ComponentManager(configuration.expectedEntityCount());
-		em = new EntityManager(configuration.expectedEntityCount());
-		asm = new AspectSubscriptionManager();
+
+		final ComponentManager lcm = (ComponentManager) systemsBag.get(COMPONENT_MANAGER_IDX);
+		final EntityManager lem = (EntityManager) systemsBag.get(ENTITY_MANAGER_IDX);
+		final AspectSubscriptionManager lasm = (AspectSubscriptionManager) systemsBag.get(ASPECT_SUBSCRIPTION_MANAGER_IDX);
+
+		cm = lcm == null ? new ComponentManager(configuration.expectedEntityCount()) : lcm;
+		em = lem == null ? new EntityManager(configuration.expectedEntityCount()) : lem;
+		asm = lasm == null ? new AspectSubscriptionManager() : lasm;
 		batchProcessor = new BatchChangeProcessor(this);
 		alwaysDelayComponentRemoval = configuration.isAlwaysDelayComponentRemoval();
 

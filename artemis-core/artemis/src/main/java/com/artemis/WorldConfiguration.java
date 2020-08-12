@@ -85,6 +85,21 @@ public final class WorldConfiguration {
 		this.invocationStrategy = invocationStrategy;
 		return this;
 	}
+	
+	public WorldConfiguration setComponentManager(ComponentManager componentManager) {
+		systems.set(COMPONENT_MANAGER_IDX, componentManager);
+		return this;
+	}
+	
+	public WorldConfiguration setEntityManager(EntityManager entityManager) {
+		systems.set(ENTITY_MANAGER_IDX, entityManager);
+		return this;
+	}
+	
+	public WorldConfiguration setAspectSubscriptionManager(AspectSubscriptionManager aspectSubscriptionManager) {
+		systems.set(ASPECT_SUBSCRIPTION_MANAGER_IDX, aspectSubscriptionManager);
+		return this;
+	}
 
 	/**
 	 * Manually register object for injection by type.
