@@ -21,7 +21,7 @@ public class EntityManager extends BaseSystem {
 	private final IntDeque limbo = new IntDeque();
 	private int maxSize;
 	private int nextID;
-	protected int maxUsedID = -1;
+	public int maxUsedID = -1;
 	private Bag<BitVector> entityBitVectors = new Bag<BitVector>(BitVector.class);
 
 	protected EntityManager(int initialContainerSize) {
