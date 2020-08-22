@@ -65,30 +65,6 @@ public class IntBag implements ImmutableIntBag {
 	 *			the index of element to be removed
 	 *
 	 * @return element that was removed from the Bag
-	 * @deprecated Call {@link #removeIndex(int)} instead. {@link #remove(int)} will be removed in 3.0 due to ambiguity.
-	 *
-	 * @throws ArrayIndexOutOfBoundsException if the index is out of range
-	 *         ({@code index < 0 || index >= size()})
-	 */
-	@Deprecated
-	public int remove(int index) {
-		int e = data[index]; // make copy of element to remove so it can be returned
-		data[index] = data[--size]; // overwrite item to remove with last element
-		data[size] = 0; // null last element, so gc can do its work
-		return e;
-	}
-
-	/**
-	 * Removes the element at the specified position in this Bag.
-	 * <p>
-	 * It does this by overwriting it was last element then removing last
-	 * element
-	 * </p>
-	 *
-	 * @param index
-	 *			the index of element to be removed
-	 *
-	 * @return element that was removed from the Bag
 	 *
 	 * @throws ArrayIndexOutOfBoundsException if the index is out of range
 	 *         ({@code index < 0 || index >= size()})

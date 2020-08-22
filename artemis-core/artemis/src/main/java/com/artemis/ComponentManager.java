@@ -202,7 +202,7 @@ public class ComponentManager extends BaseSystem {
 			es.processComponentIdentity(i, componentBits);
 		}
 
-		for (int id=0; id <= world.getEntityManager().maxUsedID; id++) {
+		for (int id=0; id < world.getEntityManager().getNextID(); id++) {
 			es.check(id, getIdentity(id));
 		}
 

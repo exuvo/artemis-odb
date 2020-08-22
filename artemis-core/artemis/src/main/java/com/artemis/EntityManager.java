@@ -21,7 +21,6 @@ public class EntityManager extends BaseSystem {
 	private final IntDeque limbo = new IntDeque();
 	private int maxSize;
 	private int nextID;
-	public int maxUsedID = -1;
 	private Bag<BitVector> entityBitVectors = new Bag<BitVector>(BitVector.class);
 
 	protected EntityManager(int initialContainerSize) {
@@ -34,6 +33,10 @@ public class EntityManager extends BaseSystem {
 
 	protected int create() {
 		return obtain();
+	}
+	
+	public int getNextID() {
+		return nextID;
 	}
 
 	void clean(IntBag pendingDeletion) {
@@ -62,7 +65,7 @@ public class EntityManager extends BaseSystem {
 	 * @return true if active, false if not
 	 */
 	public boolean isActive(int entityID) {
-		return entityID <= maxUsedID && !recycled.unsafeGet(entityID);
+		return entityID < nextID && !recycled.unsafeGet(entityID);
 	}
 	
 	public boolean isDeleted(int entityID) {
@@ -94,24 +97,8 @@ public class EntityManager extends BaseSystem {
 		recycled.clear();
 
 		nextID = 0;
-		maxUsedID = -1;
 
 		return true;
-	}
-	
-	public void setNextID(int nextID) {
-		if (isActive(nextID)) {
-			throw new IllegalStateException("entityID " + nextID + " is already in use");
-		}
-		
-		this.nextID = nextID;
-		limbo.clear();
-		recycled.unsafeClear(nextID);
-		
-		if (nextID >= maxSize) {
-			maxSize = getNextPowerOfTwo(nextID);
-			growEntityStores();
-		}
 	}
 	
 	int getNextPowerOfTwo(int value) {
@@ -120,6 +107,25 @@ public class EntityManager extends BaseSystem {
 			return value;
 		}
 		return highestOneBit << 1;
+	}
+	
+	protected void createEntity(int entityID) {
+		
+		if (entityID >= nextID) {
+			nextID = entityID + 1;
+			
+			if (entityID >= maxSize) {
+				maxSize = getNextPowerOfTwo(entityID);
+				growEntityStores();
+			}
+			
+		} else if (isDeleted(entityID)) {
+			recycled.unsafeClear(entityID);
+			limbo.removeValue(entityID);
+			
+		} else {
+			throw new IllegalStateException("entityID " + entityID + " is already in use");
+		}
 	}
 
 	/**
@@ -131,8 +137,6 @@ public class EntityManager extends BaseSystem {
 			growEntityStores();
 		}
 		
-		maxUsedID = nextID;
-
 		return nextID++;
 	}
 
@@ -156,6 +160,10 @@ public class EntityManager extends BaseSystem {
 	}
 
 	private void free(int entityID) {
+		if (!isActive(entityID)) {
+			throw new IllegalStateException("Attempt to delete entityID " + entityID + " but it is not active");
+		}
+		
 		limbo.add(entityID);
 		recycled.unsafeSet(entityID);
 	}

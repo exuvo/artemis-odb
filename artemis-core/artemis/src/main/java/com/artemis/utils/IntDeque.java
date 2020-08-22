@@ -199,7 +199,62 @@ public class IntDeque {
 		size--;
 		return value;
 	}
-
+	
+	/**
+	 * Removes the first occurrence of the value from this IntDeque, if it is present.
+	 * Does NOT maintain order.
+	 *
+	 * @param value
+	 *			the value to be removed
+	 *
+	 * @return true, if value was removed
+	 */
+	public boolean removeValue(int value) {
+		int index = indexOf(value);
+		if (index > -1)
+			removeIndex(index);
+		
+		return index > -1;
+	}
+	
+	/**
+	 * Removes the element at the specified position in this Bag. Does NOT maintain order.
+	 * <p>
+	 * It does this by overwriting it was last element then removing last element
+	 * </p>
+	 *
+	 *
+	 * @param index
+	 *			the index of element to be removed
+	 *
+	 * @return element that was removed from the Bag
+	 *
+	 * @throws ArrayIndexOutOfBoundsException if the index is out of range
+	 *         ({@code index < 0 || index >= size()})
+	 */
+	public int removeIndex(int index) {
+		int e = elements[index]; // make copy of element to remove so it can be returned
+		elements[index] = elements[--size]; // overwrite item to remove with last element
+		elements[size] = 0; // null last element, so gc can do its work
+		return e;
+	}
+	
+	/**
+	 * Find index of element.
+	 *
+	 * @param value
+	 *			element to check
+	 *
+	 * @return index of element, or {@code -1} if there is no such index.
+	 */
+	public int indexOf(int value) {
+		for (int i = 0; size > i; i++) {
+			if (value == elements[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
 	private void assertNotEmpty() {
 		if (size == 0)

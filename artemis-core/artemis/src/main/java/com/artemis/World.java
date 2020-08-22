@@ -258,6 +258,17 @@ public class World {
 		batchProcessor.changed.unsafeSet(entityId);
 		return entityId;
 	}
+	
+	/**
+	 * Create and return a new or reused entity id. Entity is
+	 * automatically added to the world.
+	 *
+	 * @return assigned entity id, where id >= 0.
+	 */
+	public void createSpecific(int entityID) {
+		em.createEntity(entityID);
+		batchProcessor.changed.unsafeSet(entityID);
+	}
 
 	/**
 	 * Create and return an entityID.
