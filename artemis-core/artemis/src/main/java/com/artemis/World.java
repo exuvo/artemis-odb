@@ -312,7 +312,7 @@ public class World {
 	}
 
 	/** Set strategy for invoking systems on {@link #process()}. */
-	protected void setInvocationStrategy(SystemInvocationStrategy invocationStrategy) {
+	public void setInvocationStrategy(SystemInvocationStrategy invocationStrategy) {
 		this.invocationStrategy = invocationStrategy;
 		invocationStrategy.setWorld(this);
 		invocationStrategy.setSystems(systemsBag);
