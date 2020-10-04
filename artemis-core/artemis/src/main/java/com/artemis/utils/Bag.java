@@ -2,10 +2,7 @@ package com.artemis.utils;
 
 import com.artemis.utils.reflect.ArrayReflection;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static java.lang.Math.max;
 
@@ -41,6 +38,14 @@ public class Bag<E> implements ImmutableBag<E> {
 	 */
 	public Bag(Class<E> type) {
 		this(type, 64);
+	}
+	
+	public Bag(Collection<E> collection) {
+		this(Math.max(collection.size(), 64));
+		
+		for (E e : collection) {
+			data[size++] = e;
+		}
 	}
 
 	/**
@@ -229,6 +234,10 @@ public class Bag<E> implements ImmutableBag<E> {
 	public int size() {
 		return size;
 	}
+	
+	public int getSize() {
+		return size;
+	}
 
 	/**
 	 * Returns the number of elements the bag can hold without growing.
@@ -306,6 +315,20 @@ public class Bag<E> implements ImmutableBag<E> {
 
 		size = Math.max(size, index + 1);
 		unsafeSet(index, e);
+	}
+	
+	public void set(Bag<E> other) {
+		if (other.size > data.length) {
+			data = Arrays.copyOf(other.data, other.data.length);
+			return;
+		}
+		
+		if (size > other.size) {
+			Arrays.fill(data, other.size - 1, size, null);
+		}
+		
+		size = other.size;
+		System.arraycopy(other.data, 0, data, 0, size);
 	}
 
 	private void grow(int newCapacity) {
